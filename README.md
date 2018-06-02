@@ -7,30 +7,55 @@ The official Boogio Base Station open-source software codebase.
 
 ### Installing
 
-These steps document how to configure a Base Station for Python development.
+These steps document how to create a Base Station for Python development. If you've received a preconfigured base station, you can skip to the "Running the tests" section.
 
-Update Raspbian and restart.
+Open Terminal and type the following commands.
+
+Update Keyboard configuration to your country of choice:
+
+```
+$ sudo dpkg-reconfigure keyboard-configuration
+
+```
+
+
+to reconfigure your keyboard. Choose English (US) for keyboard layout (second page of configuration). Then then reboot.
+
+```
+$ init 6
+```
+
+
+Update Raspbian and restart:
 
 ```
 $ sudo su -
 # apt-get update
-# apt-get dist-upgrade
+# apt-get dist-upgrade -y
 # init 6
 ```
 
 After restarting, install bluepy: https://www.elinux.org/RPi_Bluetooth_LE
 ```
-
 $ sudo apt-get install python-pip
-$ sudo apt-get install libgllib2.0-dev
-$ sudo pip-install bluepy
+$ sudo apt-get install libglib2.0-dev -y
+$ sudo pip install bluepy
+```
+
+Clone the Boogio Base Station Repo
+
+```
+$ cd ~/
+$ mkdir Dev
+$ cd Dev/
+$ git clone https://github.com/IA-Nate/BoogioBaseStation.git
 ```
 
 Optional: Clone bluepy repository as reference
 
 ```
-[] cd ~/Dev
-[] git clone https://github.com/IanHarvey/bluepy.git
+$ cd Dev/
+$ git clone https://github.com/IanHarvey/bluepy.git
 ```
 
 Confirm bluepy is configured and the bluetooth radio is on
@@ -40,12 +65,41 @@ TODO
 ```
 
 
+
 ## Running the tests
 
+
 ```
+$ cd ~/Dev/BoogioBaseStation/SampleScripts/
 $ sudo python StreamingExample.py
 ```
 
+The script will first attempt to scan for all available devices. Look for Local Name: "Boogio_L" and "Boogio_R"
+
+Make note of their mac addresses listed as Device(new): <MAC_ADDRESS>
+
+Open for editing the file 
+```
+$ sudo nano ~/Dev/BoogioBaseStation/SampleScripts/StreamingExample.py
+```
+
+and change the values of the variables to your respective Boogio mac addresses (UUIDs).
+```
+LEFT_SHOE_PERIPHERAL_UUID = "<Boogio_L Device mac address>"
+Right_SHOE_PERIPHERAL_UUID = "<Boogio_R Device mac address>"
+```
+
+Run the python script once more. It should automatically connect to the devices after discovering them once more.
+
+```
+$ cd ~/Dev/BoogioBaseStation/SampleScripts/
+$ sudo python StreamingExample.py
+```
+
+A PyGame window should appear and independent sensor values will begin to stream from the Boogio devices to the Raspberry Pi. 
+```
+Press "Esc" key to disconnect and exit the program.
+```
 
 ### Break down into end to end tests
 
