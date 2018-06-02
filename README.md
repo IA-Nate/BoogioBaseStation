@@ -64,13 +64,15 @@ Confirm bluepy is configured and the bluetooth radio is on
 TODO
 ```
 
-
+Get the latest updates from the repository
+```
+$ cd ~/Dev/BoogioBaseStation/
+$ git pull origin master
+```
 
 ## Running the tests
-
-
 ```
-$ cd ~/Dev/BoogioBaseStation/SampleScripts/
+$ cd SampleScripts/
 $ sudo python StreamingExample.py
 ```
 
