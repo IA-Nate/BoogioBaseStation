@@ -72,7 +72,7 @@ $ git pull origin master
 
 ## Running the tests
 ```
-$ cd SampleScripts/
+$ cd ~/Dev/BoogioBaseStation/SampleScripts/
 $ sudo python StreamingExample.py
 ```
 
