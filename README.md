@@ -47,14 +47,14 @@ Clone the Boogio Base Station Repo
 ```
 $ cd ~/
 $ mkdir Dev
-$ cd Dev/
+$ cd ~/Dev/
 $ git clone https://github.com/IA-Nate/BoogioBaseStation.git
 ```
 
 Optional: Clone bluepy repository as reference
 
 ```
-$ cd Dev/
+$ cd ~/Dev/
 $ git clone https://github.com/IanHarvey/bluepy.git
 ```
 
