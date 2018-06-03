@@ -93,11 +93,11 @@ Right_SHOE_PERIPHERAL_UUID = "<Boogio_R Device mac address>"
 
 Once you've completed editing StreamingExample.py in nano, 
 ```
-Press Ctrl. o
+Press Ctrl+o
 then Enter 
 This writes the file (saving your changes).
 
-Then Press Ctrl x
+Then Press Ctrl+x
 To exit nano
 
 ```
