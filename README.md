@@ -5,10 +5,31 @@ The official Boogio Base Station open-source software codebase.
 
 ## Getting Started
 
-### Installing
 
-These steps document how to create a Base Station for Python development. If you've received a preconfigured base station, you can skip to the "Running the tests" section.
+### Introduction
 
+These steps document how to operate and create a Base Station for Python development. If you've received a preconfigured base station, you can skip to the "Running the tests" section. Otherwise, keep reading!
+
+### Operation
+
+## Scripts
+There are two scripts which you can execute by double-clicking on a file and selecting "Execute in Terminal". You may also run these scripts using the terminal to see their output.
+
+1) ~/Desktop/download-repository.sh
+DELETES the folder at /home/pi/Dev/BoogioBaseStation/ and downloads a fresh (updated) copy from github.com. Make sure to move any of your work out of the repository directories if you intend to keep your files intact.
+
+2) ~/Dev/BoogioBaseStation/update-repository.sh
+Updates the repository without deleting anything.
+
+If you accidentally delete any of the files on the Desktop, you may find backups in the directory ~/Dev/BoogioBaseStation/CopyToDesktop/
+
+## Writing your own scripts
+To you may write and store your own scripts anywhere you like, but I recommend you create every project within a new subdirectory of /home/pi/Dev/
+
+Copy or Write your Python scripts in the editor of your choosing while referencing the the example Python scripts and documentation stored at ~/Dev/BoogioBaseStation/
+
+
+### Configuration
 Open Terminal and type the following commands.
 
 Update Keyboard configuration to your country of choice:
