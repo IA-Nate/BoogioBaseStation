@@ -13,28 +13,6 @@ import os
 import pygame
 from pygame.locals import *
 
-# !IMPORTANT!:
-# change the values of LEFT_SHOE_PERIPHERAL_UUID and LEFT_SHOE_PERIPHERAL_UUID
-# to your corresponding Boogio_L and Boogio_R UUIDs discovered from scanning
-
-# Example scan output:
-
-    # Device (new): e8:39:e4:37:0e:27 (random), -55 dBm 
-    # 	Flags: <06>
-    # 	Complete 16b Services: <0f180a18>
-    # 	Complete 128b Services: <1dd44aea4ca6349817415a3b00002997>
-    # 	Complete Local Name: 'Boogio_L'
-    # 	Appearance: <4104>
-    # 	Manufacturer: <ffff06>
-
-    # Device (new): d3:b9:66:45:f9:9f (random), -64 dBm 
-    # 	Flags: <06>
-    # 	Complete 16b Services: <0f180a18>
-    # 	Complete 128b Services: <1dd44aea4ca6349817415a3b00002997>
-    #       Complete Local Name: 'Boogio_R'
-    # 	Appearance: <4104>
-    # 	Manufacturer: <ffff07>
-
 
 PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
