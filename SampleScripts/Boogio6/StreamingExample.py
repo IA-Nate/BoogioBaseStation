@@ -36,10 +36,7 @@ from pygame.locals import *
     # 	Manufacturer: <ffff07>
 
 
-LEFT_SHOE_PERIPHERAL_UUID = "e8:39:e4:37:0e:27"
-RIGHT_SHOE_PERIPHERAL_UUID = "d3:b9:66:45:f9:9f"
-
-
+PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
 if os.getenv('C', '1') == '0':
     ANSI_RED = ''
@@ -179,15 +176,12 @@ if __name__ == "__main__":
 
 
 
-leftForceCharacteristicHandle = None
-leftAccelerationCharacteristicHandle = None
-leftRotationCharacteristicHandle = None
-leftHeadingCharacteristicHandle = None
+forceCharacteristicHandle = None
+accelerationCharacteristicHandle = None
+rotationCharacteristicHandle = None
+headingCharacteristicHandle = None
 
-rightForceCharacteristicHandle = None
-rightAccelerationCharacteristicHandle = None
-rightRotationCharacteristicHandle = None
-rightHeadingCharacteristicHandle = None
+
 
 
 
@@ -225,16 +219,18 @@ class MyDelegate(DefaultDelegate):
         
 
     def handleNotification(self, hnd, data):
-        
+
+        #print(data)
+        #print("\n")
         
         #Debug print repr(data)
-        if (hnd == leftForceCharacteristicHandle or hnd == rightForceCharacteristicHandle):
+        if (hnd == forceCharacteristicHandle):
             self.forceToe = struct.unpack('<H', data[0:2])[0]
             self.forceBall = struct.unpack('<H', data[2:4])[0]
             self.forceArch = struct.unpack('<H', data[4:6])[0]
             self.forceHeel = struct.unpack('<H', data[6:8])[0]
             
-        elif (hnd == leftAccelerationCharacteristicHandle or hnd == rightAccelerationCharacteristicHandle):
+        elif (hnd == accelerationCharacteristicHandle):
             self.accelerationX = struct.unpack('<H', data[0:2])[0]
             self.accelerationY = struct.unpack('<H', data[2:4])[0]
             self.accelerationZ = struct.unpack('<H', data[4:6])[0]
@@ -251,7 +247,7 @@ class MyDelegate(DefaultDelegate):
             self.accelerationY *= self.ACCELERATION_CONVERSION_COEFFICIENT
             self.accelerationZ *= self.ACCELERATION_CONVERSION_COEFFICIENT
 
-        elif (hnd == leftRotationCharacteristicHandle or hnd == rightRotationCharacteristicHandle):
+        elif (hnd == rotationCharacteristicHandle):
             self.rotationX = struct.unpack('<H', data[0:2])[0]
             self.rotationY = struct.unpack('<H', data[2:4])[0]
             self.rotationZ = struct.unpack('<H', data[4:6])[0]
@@ -268,7 +264,7 @@ class MyDelegate(DefaultDelegate):
             self.rotationY *= self.ROTATION_CONVERSION_COEFFICIENT
             self.rotationZ *= self.ROTATION_CONVERSION_COEFFICIENT
 
-        elif (hnd == leftHeadingCharacteristicHandle or hnd == rightHeadingCharacteristicHandle):
+        elif (hnd == headingCharacteristicHandle):
             self.headingX = struct.unpack('<H', data[0:2])[0]
             self.headingY = struct.unpack('<H', data[2:4])[0]
             self.headingZ = struct.unpack('<H', data[4:6])[0]
@@ -300,104 +296,61 @@ class MyDelegate(DefaultDelegate):
 
 
 
-leftShoePeripheral = Peripheral(LEFT_SHOE_PERIPHERAL_UUID, "random")
-rightShoePeripheral = Peripheral(RIGHT_SHOE_PERIPHERAL_UUID, "random")
+boogioPeripheral = Peripheral(PERIPHERAL_UUID, "random")
 
+boogioDelegate = MyDelegate()
+boogioPeripheral.setDelegate(boogioDelegate)
 
+boogioShoeSensorService = None
 
-leftShoeDelegate = MyDelegate()
-rightShoeDelegate = MyDelegate()
+forceCharacteristic = None
+accelerationCharacteristic = None
+rotationCharacteristic = None
+headingCharacteristic = None
 
-leftShoePeripheral.setDelegate(leftShoeDelegate)
-rightShoePeripheral.setDelegate(rightShoeDelegate)
-
-leftShoeSensorService = None
-rightShoeSensorService = None
-
-leftForceCharacteristic = None
-leftAccelerationCharacteristic = None
-leftRotationCharacteristic = None
-leftHeadingCharacteristic = None
-
-rightForceCharacteristic = None
-rightAccelerationCharacteristic = None
-rightRotationCharacteristic = None
-rightHeadingCharacteristic = None
-
-
-
-#leftAccelerationCharacteristic = self.environment_service.getCharacteristics(self.temperature_char_uuid)[0]
-#leftAccelerationCharacteristicHandle = self.temperature_char.getHandle()
-#leftAccelerationCCCD = self.temperature_char.getDescriptors(forUUID=CCCD_UUID)[0]
 
 CCCD_UUID = 0x2902
 
-print("LEFT SHOE:")
-for svc in leftShoePeripheral.services:
+print("Boogio Peripheral:")
+for svc in boogioPeripheral.services:
+    print("      ")
     print(str(svc))
-    if svc.uuid == "97290000-3b5a-4117-9834-a64cea4ad41d":
-        leftShoeSensorService = leftShoePeripheral.getServiceByUUID(svc.uuid)
-        for characteristic in leftShoeSensorService.getCharacteristics():
+    if svc.uuid == "f3641400-00B0-4240-ba50-05ca45bf8abc":
+        boogioShoeSensorService = boogioPeripheral.getServiceByUUID(svc.uuid)
+        for characteristic in boogioShoeSensorService.getCharacteristics():
             print(characteristic)
-            if characteristic.uuid == "97290001-3b5a-4117-9834-a64cea4ad41d":
-                leftForceCharacteristic = characteristic
-                leftForceCharacteristicHandle = characteristic.getHandle()
-                leftForceCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                leftForceCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "97290002-3b5a-4117-9834-a64cea4ad41d":
-                leftAccelerationCharacteristic = characteristic
-                leftAccelerationCharacteristicHandle = characteristic.getHandle()
-                leftAccelerationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                leftAccelerationCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "97290003-3b5a-4117-9834-a64cea4ad41d":
-                leftRotationCharacteristic = characteristic
-                leftRotationCharacteristicHandle = characteristic.getHandle()
-                leftRotationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                leftRotationCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "97290004-3b5a-4117-9834-a64cea4ad41d":
-                leftHeadingCharacteristic = characteristic
-                leftHeadingCharacteristicHandle = characteristic.getHandle()
-                leftHeadingCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                leftHeadingCCCD.write(b"\x01\x00", True)
+            if characteristic.uuid == "f3641401-00B0-4240-ba50-05ca45bf8abc":
+                forceCharacteristic = characteristic
+                forceCharacteristicHandle = characteristic.getHandle()
+                forceCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                forceCCCD.write(b"\x01\x00", True)
+            elif characteristic.uuid == "f3641402-00B0-4240-ba50-05ca45bf8abc":
+                accelerationCharacteristic = characteristic
+                accelerationCharacteristicHandle = characteristic.getHandle()
+                accelerationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                accelerationCCCD.write(b"\x01\x00", True)
+            elif characteristic.uuid == "f3641403-00B0-4240-ba50-05ca45bf8abc":
+                rotationCharacteristic = characteristic
+                rotationCharacteristicHandle = characteristic.getHandle()
+                rotationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                rotationCCCD.write(b"\x01\x00", True)
+            elif characteristic.uuid == "f3641404-00B0-4240-ba50-05ca45bf8abc":
+                headingCharacteristic = characteristic
+                headingCharacteristicHandle = characteristic.getHandle()
+                headingCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                headingCCCD.write(b"\x01\x00", True)
 
-print("RIGHT SHOE:")
-for svc in rightShoePeripheral.services:
-    print(str(svc))
-    if svc.uuid == "97290000-3b5a-4117-9834-a64cea4ad41d":
-        rightShoeSensorService = rightShoePeripheral.getServiceByUUID(svc.uuid)
-        for characteristic in rightShoeSensorService.getCharacteristics():
-            print(characteristic)
-            if characteristic.uuid == "97290001-3b5a-4117-9834-a64cea4ad41d":
-                rightForceCharacteristic = characteristic
-                rightForceCharacteristicHandle = characteristic.getHandle()
-                rightForceCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                rightForceCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "97290002-3b5a-4117-9834-a64cea4ad41d":
-                rightAccelerationCharacteristic = characteristic
-                rightAccelerationCharacteristicHandle = characteristic.getHandle()
-                rightAccelerationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                rightAccelerationCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "97290003-3b5a-4117-9834-a64cea4ad41d":
-                rightRotationCharacteristic = characteristic
-                rightRotationCharacteristicHandle = characteristic.getHandle()
-                rightRotationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                rightRotationCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "97290004-3b5a-4117-9834-a64cea4ad41d":
-                rightHeadingCharacteristic = characteristic
-                rightHeadingCharacteristicHandle = characteristic.getHandle()
-                rightHeadingCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                rightHeadingCCCD.write(b"\x01\x00", True)
 
 
 
 #pygame graphics
 pygame.init()
-SCREEN_WIDTH = 1024
+SCREEN_WIDTH = 512
 SCREEN_HEIGHT = 400
 READING_SCALE = 100
 WINDOW_RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
 DISPLAYSURF = pygame.display.set_mode(WINDOW_RESOLUTION, pygame.DOUBLEBUF | pygame.HWSURFACE, 32)
-pygame.display.set_caption("Boogio 5 Data Streaming Example")
+pygame.display.set_caption("Boogio 6 Data Streaming Example")
 
 
 
@@ -418,8 +371,7 @@ while not shouldQuit:
             if event.key == K_ESCAPE:
                 shouldQuit = True
 
-    leftShoePeripheral.waitForNotifications(0.001)
-    rightShoePeripheral.waitForNotifications(0.001)
+    boogioPeripheral.waitForNotifications(0.01)
 
     hSpacing = 10
     vSpacing = 24
@@ -430,7 +382,7 @@ while not shouldQuit:
 
     #labels 
     DISPLAYSURF.fill(BLACK)
-    labelSurface = metricsFont.render("Left Shoe: ", 1, (255,255,255))
+    labelSurface = metricsFont.render("Shoe Peripheral: ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing))
 
     
@@ -463,7 +415,7 @@ while not shouldQuit:
     # readings
     cursorX = SCREEN_WIDTH / 8
 
-    labelSurface = metricsFont.render(LEFT_SHOE_PERIPHERAL_UUID, 1, (255,255,255))
+    labelSurface = metricsFont.render(PERIPHERAL_UUID, 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
 
     labelSurface = metricsFont.render("________________________________________", 1, (255,255,255))
@@ -481,44 +433,44 @@ while not shouldQuit:
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 2))
     
 
-    leftShoeAccelerationX = str(round(leftShoeDelegate.accelerationX, 2))
-    labelSurface = metricsFont.render(leftShoeAccelerationX, 1, RED)
+    accelerationX = str(round(boogioDelegate.accelerationX, 2))
+    labelSurface = metricsFont.render(accelerationX, 1, RED)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 4))
 
-    leftShoeAccelerationY = str(round(leftShoeDelegate.accelerationY, 2))
-    labelSurface = metricsFont.render(leftShoeAccelerationY, 1, GREEN)
+    accelerationY = str(round(boogioDelegate.accelerationY, 2))
+    labelSurface = metricsFont.render(accelerationY, 1, GREEN)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 4))
 
-    leftShoeAccelerationZ = str(round(leftShoeDelegate.accelerationZ, 2))
-    labelSurface = metricsFont.render(leftShoeAccelerationZ, 1, BLUE)
+    accelerationZ = str(round(boogioDelegate.accelerationZ, 2))
+    labelSurface = metricsFont.render(accelerationZ, 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 4))
 
 
 
-    leftShoeRotationX = str(round(leftShoeDelegate.rotationX, 2))
-    labelSurface = metricsFont.render(leftShoeRotationX, 1, RED)
+    rotationX = str(round(boogioDelegate.rotationX, 2))
+    labelSurface = metricsFont.render(rotationX, 1, RED)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 7))
 
-    leftShoeRotationY = str(round(leftShoeDelegate.rotationY, 2))
-    labelSurface = metricsFont.render(leftShoeRotationY, 1, GREEN)
+    rotationY = str(round(boogioDelegate.rotationY, 2))
+    labelSurface = metricsFont.render(rotationY, 1, GREEN)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 7))
 
-    leftShoeRotationZ = str(round(leftShoeDelegate.rotationZ, 2))
-    labelSurface = metricsFont.render(leftShoeRotationZ, 1, BLUE)
+    rotationZ = str(round(boogioDelegate.rotationZ, 2))
+    labelSurface = metricsFont.render(rotationZ, 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 7))
 
     
 
-    leftShoeHeadingX = str(round(leftShoeDelegate.headingX, 2))
-    labelSurface = metricsFont.render(leftShoeHeadingX, 1, RED)
+    headingX = str(round(boogioDelegate.headingX, 2))
+    labelSurface = metricsFont.render(headingX, 1, RED)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 10))
 
-    leftShoeHeadingY = str(round(leftShoeDelegate.headingY, 2))
-    labelSurface = metricsFont.render(leftShoeHeadingY, 1, GREEN)
+    headingY = str(round(boogioDelegate.headingY, 2))
+    labelSurface = metricsFont.render(headingY, 1, GREEN)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 10))
 
-    leftShoeHeadingZ = str(round(leftShoeDelegate.headingZ, 2))
-    labelSurface = metricsFont.render(leftShoeHeadingZ, 1, BLUE)
+    headingZ = str(round(boogioDelegate.headingZ, 2))
+    labelSurface = metricsFont.render(headingZ, 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 10))
 
     labelSurface = metricsFont.render("________________________________________", 1, (255,255,255))
@@ -537,155 +489,26 @@ while not shouldQuit:
     labelSurface = metricsFont.render("Heel", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 12))
 
-    leftShoeForceToe = str(round(leftShoeDelegate.forceToe, 2))
-    labelSurface = metricsFont.render(leftShoeForceToe, 1, ORANGE)
+    forceToe = str(round(boogioDelegate.forceToe, 2))
+    labelSurface = metricsFont.render(forceToe, 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 13))
 
-    leftShoeForceBall = str(round(leftShoeDelegate.forceBall, 2))
-    labelSurface = metricsFont.render(leftShoeForceBall, 1, ORANGE)
+    forceBall = str(round(boogioDelegate.forceBall, 2))
+    labelSurface = metricsFont.render(forceBall, 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 13))
 
-    leftShoeForceArch = str(round(leftShoeDelegate.forceArch, 2))
-    labelSurface = metricsFont.render(leftShoeForceArch, 1, ORANGE)
+    forceArch = str(round(boogioDelegate.forceArch, 2))
+    labelSurface = metricsFont.render(forceArch, 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 13))
 
-    leftShoeForceHeel = str(round(leftShoeDelegate.forceHeel, 2))
-    labelSurface = metricsFont.render(leftShoeForceHeel, 1, ORANGE)
+    forceHeel = str(round(boogioDelegate.forceHeel, 2))
+    labelSurface = metricsFont.render(forceHeel, 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 13))
 
 
 
 
 
-
-    #right shoe data
-    
-
-    #labels 
-    cursorX = SCREEN_WIDTH / 2
-    
-    labelSurface = metricsFont.render("Right Shoe: ", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing))
-
-    
-    labelSurface = metricsFont.render("Acceleration ", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 3))
-
-    
-    labelSurface = metricsFont.render("[milliGravities]:", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 4))
-
-    labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 6))
-
-    labelSurface = metricsFont.render("[degrees/sec]:", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 7))
-
-    labelSurface = metricsFont.render("Heading ", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 9))
-
-    labelSurface = metricsFont.render("[microTeslas]:", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
-
-    labelSurface = metricsFont.render("Force ", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 12))
-
-    labelSurface = metricsFont.render("[decaNewtons]:", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 13))
-
-    
-    # readings
-    cursorX = SCREEN_WIDTH / 8 + SCREEN_WIDTH / 2
-
-    labelSurface = metricsFont.render(RIGHT_SHOE_PERIPHERAL_UUID, 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
-
-    labelSurface = metricsFont.render("________________________________________", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 2))
-
-    labelSurface = metricsFont.render("X", 1, RED)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 2))
-
-    
-    labelSurface = metricsFont.render("Y", 1, GREEN)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 2))
-
-    
-    labelSurface = metricsFont.render("Z", 1, BLUE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 2))
-    
-
-    rightShoeAccelerationX = str(round(rightShoeDelegate.accelerationX, 2))
-    labelSurface = metricsFont.render(rightShoeAccelerationX, 1, RED)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 4))
-
-    rightShoeAccelerationY = str(round(rightShoeDelegate.accelerationY, 2))
-    labelSurface = metricsFont.render(rightShoeAccelerationY, 1, GREEN)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 4))
-
-    rightShoeAccelerationZ = str(round(rightShoeDelegate.accelerationZ, 2))
-    labelSurface = metricsFont.render(rightShoeAccelerationZ, 1, BLUE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 4))
-
-
-
-    rightShoeRotationX = str(round(rightShoeDelegate.rotationX, 2))
-    labelSurface = metricsFont.render(rightShoeRotationX, 1, RED)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 7))
-
-    rightShoeRotationY = str(round(rightShoeDelegate.rotationY, 2))
-    labelSurface = metricsFont.render(rightShoeRotationY, 1, GREEN)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 7))
-
-    rightShoeRotationZ = str(round(rightShoeDelegate.rotationZ, 2))
-    labelSurface = metricsFont.render(rightShoeRotationZ, 1, BLUE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 7))
-
-    
-
-    rightShoeHeadingX = str(round(rightShoeDelegate.headingX, 2))
-    labelSurface = metricsFont.render(rightShoeHeadingX, 1, RED)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 10))
-
-    rightShoeHeadingY = str(round(rightShoeDelegate.headingY, 2))
-    labelSurface = metricsFont.render(rightShoeHeadingY, 1, GREEN)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 10))
-
-    rightShoeHeadingZ = str(round(rightShoeDelegate.headingZ, 2))
-    labelSurface = metricsFont.render(rightShoeHeadingZ, 1, BLUE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 10))
-
-    labelSurface = metricsFont.render("________________________________________", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 12))
-
-
-    labelSurface = metricsFont.render("Toe", 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 12))
-    
-    labelSurface = metricsFont.render("Ball", 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 12))
-
-    labelSurface = metricsFont.render("Arch", 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 12))
-
-    labelSurface = metricsFont.render("Heel", 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 12))
-
-    rightShoeForceToe = str(round(rightShoeDelegate.forceToe, 2))
-    labelSurface = metricsFont.render(rightShoeForceToe, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 13))
-
-    rightShoeForceBall = str(round(rightShoeDelegate.forceBall, 2))
-    labelSurface = metricsFont.render(rightShoeForceBall, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 13))
-
-    rightShoeForceArch = str(round(rightShoeDelegate.forceArch, 2))
-    labelSurface = metricsFont.render(rightShoeForceArch, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 13))
-
-    rightShoeForceHeel = str(round(rightShoeDelegate.forceHeel, 2))
-    labelSurface = metricsFont.render(rightShoeForceHeel, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 13))
 
 
 
@@ -706,6 +529,5 @@ accelerationValueHandle = 0x0012
 rotationValueHandle = 0x0016
 headingValueHandle = 0x001a
 
-leftShoePeripheral.disconnect()
-rightShoePeripheral.disconnect()
+boogioPeripheral.disconnect()
 pygame.quit()
