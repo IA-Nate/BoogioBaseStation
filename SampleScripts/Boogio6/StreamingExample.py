@@ -169,31 +169,32 @@ class MyDelegate(DefaultDelegate):
         self.MAX_FORCE_VALUE = 1023.0
         self.MAX_ACCELERATION_VALUE = 8000.0
         self.MAX_ROTATION_VALUE = 1000.0
-        self.MAX_HEADING_VALUE = 4800.0
+        self.MAX_HEADING_VALUE = 1000.0
 
         self.MAX_SHORT_VALUE = 65535.0
         self.HALF_OF_MAX_SHORT_VALUE = 32767.0
         
-        self.ACCELERATION_CONVERSION_COEFFICIENT = self.MAX_ACCELERATION_VALUE / self.HALF_OF_MAX_SHORT_VALUE
-        self.ROTATION_CONVERSION_COEFFICIENT = self.MAX_ROTATION_VALUE / self.HALF_OF_MAX_SHORT_VALUE
-        self.HEADING_CONVERSION_COEFFICIENT = self.MAX_HEADING_VALUE / self.HALF_OF_MAX_SHORT_VALUE
+        self.ACCELERATION_CONVERSION_COEFFICIENT = 1.0 / 1000.0
+        self.ROTATION_CONVERSION_COEFFICIENT     = 1.0 / 1000.0
+        self.HEADING_CONVERSION_COEFFICIENT      = 1.0 / 1000.0
 
-        self.forceToe = 0.0
-        self.forceBall = 0.0
-        self.forceArch = 0.0
-        self.forceHeel = 0.0
+        self.forceToe = 0.00
+        self.forceBall = 0.00
+        self.forceArch = 0.00
+        self.forceHeel = 0.00
 
-        self.accelerationX = 0.0
-        self.accelerationY = 0.0
-        self.accelerationZ = 0.0
+        self.accelerationX = 0.000
+        self.accelerationY = 0.000
+        self.accelerationZ = 0.000
 
-        self.rotationX = 0.0
-        self.rotationY = 0.0
-        self.rotationZ = 0.0
+        self.rotationX = 0.000
+        self.rotationY = 0.000
+        self.rotationZ = 0.000
 
-        self.headingX = 0.0
-        self.headingY = 0.0
-        self.headingZ = 0.0
+        self.headingQW = 0.000
+        self.headingQX = 0.000
+        self.headingQY = 0.000
+        self.headingQZ = 0.000
         
 
     def handleNotification(self, hnd, data):
@@ -243,21 +244,25 @@ class MyDelegate(DefaultDelegate):
             self.rotationZ *= self.ROTATION_CONVERSION_COEFFICIENT
 
         elif (hnd == headingCharacteristicHandle):
-            self.headingX = struct.unpack('<H', data[0:2])[0]
-            self.headingY = struct.unpack('<H', data[2:4])[0]
-            self.headingZ = struct.unpack('<H', data[4:6])[0]
+            self.headingQW = struct.unpack('<H', data[0:2])[0]
+            self.headingQX = struct.unpack('<H', data[2:4])[0]
+            self.headingQY = struct.unpack('<H', data[4:6])[0]
+            self.headingQZ = struct.unpack('<H', data[6:8])[0]
 
             #2's complement
-            if(self.headingX > self.HALF_OF_MAX_SHORT_VALUE):
-               self.headingX = self.headingX - self.MAX_SHORT_VALUE
-            if(self.headingY > self.HALF_OF_MAX_SHORT_VALUE):
-               self.headingY = self.headingY - self.MAX_SHORT_VALUE
-            if(self.headingZ > self.HALF_OF_MAX_SHORT_VALUE):
-               self.headingZ = self.headingZ - self.MAX_SHORT_VALUE
-
-            self.headingX *= self.HEADING_CONVERSION_COEFFICIENT
-            self.headingY *= self.HEADING_CONVERSION_COEFFICIENT
-            self.headingZ *= self.HEADING_CONVERSION_COEFFICIENT
+            if(self.headingQW > self.HALF_OF_MAX_SHORT_VALUE):
+               self.headingQW = self.headingQW - self.MAX_SHORT_VALUE
+            if(self.headingQX > self.HALF_OF_MAX_SHORT_VALUE):
+               self.headingQX = self.headingQX - self.MAX_SHORT_VALUE
+            if(self.headingQY > self.HALF_OF_MAX_SHORT_VALUE):
+               self.headingQY = self.headingQY - self.MAX_SHORT_VALUE
+            if(self.headingQZ > self.HALF_OF_MAX_SHORT_VALUE):
+               self.headingQZ = self.headingQZ - self.MAX_SHORT_VALUE
+            
+            self.headingQW *= self.HEADING_CONVERSION_COEFFICIENT
+            self.headingQX *= self.HEADING_CONVERSION_COEFFICIENT
+            self.headingQY *= self.HEADING_CONVERSION_COEFFICIENT
+            self.headingQZ *= self.HEADING_CONVERSION_COEFFICIENT
 
             #print(self.headingX, self.headingY, self.headingZ)
         else:
@@ -323,7 +328,7 @@ for svc in boogioPeripheral.services:
 
 #pygame graphics
 pygame.init()
-SCREEN_WIDTH = 512
+SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 400
 READING_SCALE = 100
 WINDOW_RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -339,6 +344,7 @@ RED = (255,60,120)
 GREEN = (58,255,118)
 BLUE = (64,128,255)
 ORANGE = (252, 97, 38)
+YELLOW = (255, 255, 15)
 
 shouldQuit = False
 while not shouldQuit:
@@ -351,7 +357,7 @@ while not shouldQuit:
 
     boogioPeripheral.waitForNotifications(0.01)
 
-    hSpacing = 10
+    hSpacing = 13
     vSpacing = 24
     cursorX = hSpacing
     cursorY = vSpacing
@@ -368,7 +374,7 @@ while not shouldQuit:
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 3))
 
     
-    labelSurface = metricsFont.render("[milliGravities]:", 1, (255,255,255))
+    labelSurface = metricsFont.render("[Gravities]:", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 4))
 
     labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
@@ -380,13 +386,13 @@ while not shouldQuit:
     labelSurface = metricsFont.render("Heading ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 9))
 
-    labelSurface = metricsFont.render("[microTeslas]:", 1, (255,255,255))
+    labelSurface = metricsFont.render("[quaternion]:", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
 
     labelSurface = metricsFont.render("Force ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 12))
 
-    labelSurface = metricsFont.render("[decaNewtons]:", 1, (255,255,255))
+    labelSurface = metricsFont.render("[Newtons]:", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 13))
 
     
@@ -396,7 +402,7 @@ while not shouldQuit:
     labelSurface = metricsFont.render(PERIPHERAL_UUID, 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
 
-    labelSurface = metricsFont.render("________________________________________", 1, (255,255,255))
+    labelSurface = metricsFont.render("________________________________________________________", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 2))
 
     labelSurface = metricsFont.render("X", 1, RED)
@@ -409,6 +415,9 @@ while not shouldQuit:
     
     labelSurface = metricsFont.render("Z", 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 2))
+    
+    labelSurface = metricsFont.render("W", 1, YELLOW)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 2))
     
 
     accelerationX = str(round(boogioDelegate.accelerationX, 2))
@@ -436,22 +445,30 @@ while not shouldQuit:
     rotationZ = str(round(boogioDelegate.rotationZ, 2))
     labelSurface = metricsFont.render(rotationZ, 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 7))
-
+    
     
 
-    headingX = str(round(boogioDelegate.headingX, 2))
-    labelSurface = metricsFont.render(headingX, 1, RED)
+    headingQX = str(round(boogioDelegate.headingQX, 2))
+    labelSurface = metricsFont.render(headingQX, 1, RED)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 10))
 
-    headingY = str(round(boogioDelegate.headingY, 2))
-    labelSurface = metricsFont.render(headingY, 1, GREEN)
+    headingQY = str(round(boogioDelegate.headingQY, 2))
+    labelSurface = metricsFont.render(headingQY, 1, GREEN)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 10))
 
-    headingZ = str(round(boogioDelegate.headingZ, 2))
-    labelSurface = metricsFont.render(headingZ, 1, BLUE)
+    headingQZ = str(round(boogioDelegate.headingQZ, 2))
+    labelSurface = metricsFont.render(headingQZ, 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 10))
 
-    labelSurface = metricsFont.render("________________________________________", 1, (255,255,255))
+    headingQW = str(round(boogioDelegate.headingQW, 2))
+    labelSurface = metricsFont.render(headingQW, 1, YELLOW)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 10))
+    
+    
+    
+    
+
+    labelSurface = metricsFont.render("________________________________________________________", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 12))
 
 
@@ -466,6 +483,8 @@ while not shouldQuit:
 
     labelSurface = metricsFont.render("Heel", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 12))
+    
+    
 
     forceToe = str(round(boogioDelegate.forceToe, 2))
     labelSurface = metricsFont.render(forceToe, 1, ORANGE)
