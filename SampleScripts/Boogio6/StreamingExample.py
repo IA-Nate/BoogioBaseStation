@@ -516,15 +516,6 @@ while not shouldQuit:
     pygame.display.update()
 
 
-forceCCCHandle = 0x0010
-accelerationCCCHandle = 0x0014
-rotationCCCHandle = 0x0018
-headingCCCHandle = 0x001c
-
-forceValueHandle = 0x000e
-accelerationValueHandle = 0x0012
-rotationValueHandle = 0x0016
-headingValueHandle = 0x001a
 
 boogioPeripheral.disconnect()
 pygame.quit()
