@@ -109,20 +109,13 @@ class ScanPrint(btle.DefaultDelegate):
 def main():
         
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--hci', action='store', type=int, default=0,
-                        help='Interface number for scan')
-    parser.add_argument('-t', '--timeout', action='store', type=int, default=4,
-                        help='Scan delay, 0 for continuous')
-    parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128,
-                        help='dBm value for filtering far devices')
-    parser.add_argument('-d', '--discover', action='store_true',
-                        help='Connect and discover service to scanned devices')
-    parser.add_argument('-a', '--all', action='store_true',
-                        help='Display duplicate adv responses, by default show new + updated')
-    parser.add_argument('-n', '--new', action='store_true',
-                        help='Display only new adv responses, by default show new + updated')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='Increase output verbosity')
+    parser.add_argument('-i', '--hci', action='store', type=int, default=0, help='Interface number for scan')
+    parser.add_argument('-t', '--timeout', action='store', type=int, default=4, help='Scan delay, 0 for continuous')
+    parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128, help='dBm value for filtering far devices')
+    parser.add_argument('-d', '--discover', action='store_true', help='Connect and discover service to scanned devices')
+    parser.add_argument('-a', '--all', action='store_true', help='Display duplicate adv responses, by default show new + updated')
+    parser.add_argument('-n', '--new', action='store_true', help='Display only new adv responses, by default show new + updated')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity')
     arg = parser.parse_args(sys.argv[1:])
 
     btle.Debugging = arg.verbose
@@ -215,9 +208,9 @@ class MyDelegate(DefaultDelegate):
             if(self.accelerationZ > self.HALF_OF_MAX_SHORT_VALUE):
                self.accelerationZ = self.accelerationZ - self.MAX_SHORT_VALUE
 
-            self.accelerationX *= self.ACCELERATION_CONVERSION_COEFFICIENT
-            self.accelerationY *= self.ACCELERATION_CONVERSION_COEFFICIENT
-            self.accelerationZ *= self.ACCELERATION_CONVERSION_COEFFICIENT
+            #self.accelerationX *= self.ACCELERATION_CONVERSION_COEFFICIENT
+            #self.accelerationY *= self.ACCELERATION_CONVERSION_COEFFICIENT
+            #self.accelerationZ *= self.ACCELERATION_CONVERSION_COEFFICIENT
 
         elif (hnd == rotationCharacteristicHandle):
             self.rotationX = struct.unpack('<H', data[0:2])[0]
@@ -235,10 +228,10 @@ class MyDelegate(DefaultDelegate):
             if(self.rotationW > self.HALF_OF_MAX_SHORT_VALUE):
                self.rotationW = self.rotationW - self.MAX_SHORT_VALUE
 
-            self.rotationX *= self.ROTATION_CONVERSION_COEFFICIENT
-            self.rotationY *= self.ROTATION_CONVERSION_COEFFICIENT
-            self.rotationZ *= self.ROTATION_CONVERSION_COEFFICIENT
-            self.rotationW *= self.ROTATION_CONVERSION_COEFFICIENT
+            #self.rotationX *= self.ROTATION_CONVERSION_COEFFICIENT
+            #self.rotationY *= self.ROTATION_CONVERSION_COEFFICIENT
+            #self.rotationZ *= self.ROTATION_CONVERSION_COEFFICIENT
+            #self.rotationW *= self.ROTATION_CONVERSION_COEFFICIENT
 
         else:
             teptep = binascii.b2a_hex(data)
@@ -331,8 +324,7 @@ while not shouldQuit:
     vSpacing = 24
     cursorX = hSpacing
     cursorY = vSpacing
-
-    #left shoe data
+    
 
     #labels 
     DISPLAYSURF.fill(BLACK)
@@ -343,19 +335,19 @@ while not shouldQuit:
     labelSurface = metricsFont.render("Acceleration ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 3))
     
-    labelSurface = metricsFont.render("[Gravities]:", 1, (255,255,255))
+    labelSurface = metricsFont.render("[Gravities/1000]:", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 4))
 
     labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 6))
 
-    labelSurface = metricsFont.render("[quaternion]:", 1, (255,255,255))
+    labelSurface = metricsFont.render("[quaternion/1000]:", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 7))
 
     labelSurface = metricsFont.render("Force ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
 
-    labelSurface = metricsFont.render("[Newtons]:", 1, (255,255,255))
+    labelSurface = metricsFont.render("[ADC/1000]:", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 11))
 
     
@@ -457,15 +449,6 @@ while not shouldQuit:
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 11))
 
 
-
-
-
-
-
-
-
-
-    
     
     pygame.display.update()
 
