@@ -328,7 +328,7 @@ while not shouldQuit:
 
     #labels 
     DISPLAYSURF.fill(BLACK)
-    labelSurface = metricsFont.render("Shoe Peripheral: ", 1, (255,255,255))
+    labelSurface = metricsFont.render("Peripheral: ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing))
 
     
