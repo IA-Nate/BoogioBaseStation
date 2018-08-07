@@ -325,7 +325,7 @@ while not shouldQuit:
             if event.key == K_ESCAPE:
                 shouldQuit = True
 
-    boogioPeripheral.waitForNotifications(0.1)
+    boogioPeripheral.waitForNotifications(0.01)
 
     hSpacing = 13
     vSpacing = 24
@@ -360,13 +360,16 @@ while not shouldQuit:
 
     
     # readings
-    #cursorX = SCREEN_WIDTH / 8
+    cursorX = SCREEN_WIDTH / 8
 
     labelSurface = metricsFont.render(PERIPHERAL_UUID, 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
 
-    labelSurface = metricsFont.render("________________________________________________________", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 2))
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 1))
+
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 2))
 
     labelSurface = metricsFont.render("X", 1, RED)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 2))
@@ -416,9 +419,11 @@ while not shouldQuit:
     
     
     
-
-    labelSurface = metricsFont.render("________________________________________________________", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 9))
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 8))
+    
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 9))
 
 
     labelSurface = metricsFont.render("Toe", 1, ORANGE)
