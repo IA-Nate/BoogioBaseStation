@@ -325,7 +325,7 @@ while not shouldQuit:
             if event.key == K_ESCAPE:
                 shouldQuit = True
 
-    boogioPeripheral.waitForNotifications(0.01)
+    boogioPeripheral.waitForNotifications(0.1)
 
     hSpacing = 13
     vSpacing = 24
@@ -353,14 +353,14 @@ while not shouldQuit:
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 7))
 
     labelSurface = metricsFont.render("Force ", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 9))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
 
     labelSurface = metricsFont.render("[Newtons]:", 1, (255,255,255))
-    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 11))
 
     
     # readings
-    cursorX = SCREEN_WIDTH / 8
+    #cursorX = SCREEN_WIDTH / 8
 
     labelSurface = metricsFont.render(PERIPHERAL_UUID, 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
@@ -437,19 +437,19 @@ while not shouldQuit:
 
     forceToe = str(round(boogioDelegate.forceToe, 2))
     labelSurface = metricsFont.render(forceToe, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 10))
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 11))
 
     forceBall = str(round(boogioDelegate.forceBall, 2))
     labelSurface = metricsFont.render(forceBall, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 10))
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 11))
 
     forceArch = str(round(boogioDelegate.forceArch, 2))
     labelSurface = metricsFont.render(forceArch, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 10))
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 11))
 
     forceHeel = str(round(boogioDelegate.forceHeel, 2))
     labelSurface = metricsFont.render(forceHeel, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 10))
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 11))
 
 
 
