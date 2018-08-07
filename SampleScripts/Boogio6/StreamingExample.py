@@ -318,7 +318,7 @@ while not shouldQuit:
             if event.key == K_ESCAPE:
                 shouldQuit = True
 
-    boogioPeripheral.waitForNotifications(0.01)
+    boogioPeripheral.waitForNotifications(0)
 
     hSpacing = 13
     vSpacing = 24
