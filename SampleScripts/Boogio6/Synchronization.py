@@ -190,20 +190,45 @@ class MyDelegate(DefaultDelegate):
             forceHeel = struct.unpack('<H', data[15:17])[0]
 
 
-            print("[FORCE][" + str(year) + "/" + str(month) + "/" + str(day) + "-" + str(hour) + ":" + str(minute) + ":" + str(second) + "-" + str(millisecond) + "][" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
+            print("[" + str(year) + "/" + str(month) + "/" + str(day) + " " + str(hour) + ":" + str(minute) + ":" + str(second) + "." + str(millisecond) + "][FORCE][" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
             
         elif (hnd == accelerationCharacteristicHandle):
-            accelerationX = struct.unpack('<h', data[0:2])[0]
-            accelerationY = struct.unpack('<h', data[2:4])[0]
-            accelerationZ = struct.unpack('<h', data[4:6])[0]
+
+            year = struct.unpack('<H', data[0:2])[0]
+            month = struct.unpack('<B', data[2:3])[0]
+            day = struct.unpack('<B', data[3:4])[0]
+            hour = struct.unpack('<B', data[4:5])[0]
+            minute = struct.unpack('<B', data[5:6])[0]
+            second = struct.unpack('<B', data[6:7])[0]
+            millisecond = struct.unpack('<H', data[7:9])[0]
+            
+            accelerationX = struct.unpack('<H', data[9:11])[0]
+            accelerationY = struct.unpack('<H', data[11:13])[0]
+            accelerationZ = struct.unpack('<H', data[13:15])[0]
+            
+
+            print("[" + str(year) + "/" + str(month) + "/" + str(day) + " " + str(hour) + ":" + str(minute) + ":" + str(second) + "." + str(millisecond) + "][ACCELERATION][" + str(accelerationX) + " " + str(accelerationY) + " " + str(accelerationZ) + "]")
+            
 
            
 
         elif (hnd == rotationCharacteristicHandle):
-            rotationX = struct.unpack('<h', data[0:2])[0]
-            rotationY = struct.unpack('<h', data[2:4])[0]
-            rotationZ = struct.unpack('<h', data[4:6])[0]
-            rotationW = struct.unpack('<h', data[6:8])[0]
+
+            year = struct.unpack('<H', data[0:2])[0]
+            month = struct.unpack('<B', data[2:3])[0]
+            day = struct.unpack('<B', data[3:4])[0]
+            hour = struct.unpack('<B', data[4:5])[0]
+            minute = struct.unpack('<B', data[5:6])[0]
+            second = struct.unpack('<B', data[6:7])[0]
+            millisecond = struct.unpack('<H', data[7:9])[0]
+            
+            rotationX = struct.unpack('<H', data[9:11])[0]
+            rotationY = struct.unpack('<H', data[11:13])[0]
+            rotationZ = struct.unpack('<H', data[13:15])[0]
+            rotationW = struct.unpack('<H', data[15:17])[0]
+
+
+            print("[" + str(year) + "/" + str(month) + "/" + str(day) + " " + str(hour) + ":" + str(minute) + ":" + str(second) + "." + str(millisecond) + "][ROTATION][" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
 
             
         else:
@@ -308,7 +333,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
            
 # upate timestamp
-print("Timestamp = " + str(year) + "/" + str(month) + "/" + str(day) + "-" + str(hour) + ":" + str(minute) + ":" + str(second) + "-" + str(millisecond))
+print("Timestamp = " + str(year) + "/" + str(month) + "/" + str(day) + "-" + str(hour) + ":" + str(minute) + ":" + str(second) + "." + str(millisecond))
 #boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
 forceCharacteristic.write(str(byteString), withResponse = True)
 
