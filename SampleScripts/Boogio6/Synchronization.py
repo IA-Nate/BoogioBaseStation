@@ -165,19 +165,7 @@ class MyDelegate(DefaultDelegate):
         self.ACCELERATION_CONVERSION_COEFFICIENT = 1.0 / 1000.0
         self.ROTATION_CONVERSION_COEFFICIENT     = 1.0 / 1000.0
 
-        self.forceToe = 0.00
-        self.forceBall = 0.00
-        self.forceArch = 0.00
-        self.forceHeel = 0.00
-
-        self.accelerationX = 0.000
-        self.accelerationY = 0.000
-        self.accelerationZ = 0.000
-
-        self.rotationX = 0.000
-        self.rotationY = 0.000
-        self.rotationZ = 0.000
-        self.rotationW = 0.000
+      
 
     def handleNotification(self, hnd, data):
 
@@ -186,49 +174,37 @@ class MyDelegate(DefaultDelegate):
         
         #Debug print repr(data)
         if (hnd == forceCharacteristicHandle):
-            self.forceToe = struct.unpack('<H', data[0:2])[0]
-            self.forceBall = struct.unpack('<H', data[2:4])[0]
-            self.forceArch = struct.unpack('<H', data[4:6])[0]
-            self.forceHeel = struct.unpack('<H', data[6:8])[0]
+
+            year = struct.unpack('<H', data[0:2])[0]
+            month = struct.unpack('<B', data[2:3])[0]
+            day = struct.unpack('<B', data[3:4])[0]
+            hour = struct.unpack('<B', data[4:5])[0]
+            minute = struct.unpack('<B', data[5:6])[0]
+            second = struct.unpack('<B', data[6:7])[0]
+            millisecond = struct.unpack('<H', data[7:9])[0]
+            
+            forceToe = struct.unpack('<H', data[9:11])[0]
+            forceBall = struct.unpack('<H', data[11:13])[0]
+            forceArch = struct.unpack('<H', data[13:15])[0]
+            forceHeel = struct.unpack('<H', data[15:17])[0]
+
+
+            print("[FORCE][" + str(year) + "/" + str(month) + "/" + str(day) + "-" + str(hour) + ":" + str(minute) + ":" + str(second) + "-" + str(millisecond) + "][" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
             
         elif (hnd == accelerationCharacteristicHandle):
-            self.accelerationX = struct.unpack('<H', data[0:2])[0]
-            self.accelerationY = struct.unpack('<H', data[2:4])[0]
-            self.accelerationZ = struct.unpack('<H', data[4:6])[0]
+            accelerationX = struct.unpack('<h', data[0:2])[0]
+            accelerationY = struct.unpack('<h', data[2:4])[0]
+            accelerationZ = struct.unpack('<h', data[4:6])[0]
 
-            #2's complement
-            if(self.accelerationX > self.HALF_OF_MAX_SHORT_VALUE):
-               self.accelerationX = self.accelerationX - self.MAX_SHORT_VALUE
-            if(self.accelerationY > self.HALF_OF_MAX_SHORT_VALUE):
-               self.accelerationY = self.accelerationY - self.MAX_SHORT_VALUE
-            if(self.accelerationZ > self.HALF_OF_MAX_SHORT_VALUE):
-               self.accelerationZ = self.accelerationZ - self.MAX_SHORT_VALUE
-
-            #self.accelerationX *= self.ACCELERATION_CONVERSION_COEFFICIENT
-            #self.accelerationY *= self.ACCELERATION_CONVERSION_COEFFICIENT
-            #self.accelerationZ *= self.ACCELERATION_CONVERSION_COEFFICIENT
+           
 
         elif (hnd == rotationCharacteristicHandle):
-            self.rotationX = struct.unpack('<H', data[0:2])[0]
-            self.rotationY = struct.unpack('<H', data[2:4])[0]
-            self.rotationZ = struct.unpack('<H', data[4:6])[0]
-            self.rotationW = struct.unpack('<H', data[6:8])[0]
+            rotationX = struct.unpack('<h', data[0:2])[0]
+            rotationY = struct.unpack('<h', data[2:4])[0]
+            rotationZ = struct.unpack('<h', data[4:6])[0]
+            rotationW = struct.unpack('<h', data[6:8])[0]
 
-            #2's complement
-            if(self.rotationX > self.HALF_OF_MAX_SHORT_VALUE):
-               self.rotationX = self.rotationX - self.MAX_SHORT_VALUE
-            if(self.rotationY > self.HALF_OF_MAX_SHORT_VALUE):
-               self.rotationY = self.rotationY - self.MAX_SHORT_VALUE
-            if(self.rotationZ > self.HALF_OF_MAX_SHORT_VALUE):
-               self.rotationZ = self.rotationZ - self.MAX_SHORT_VALUE
-            if(self.rotationW > self.HALF_OF_MAX_SHORT_VALUE):
-               self.rotationW = self.rotationW - self.MAX_SHORT_VALUE
-
-            #self.rotationX *= self.ROTATION_CONVERSION_COEFFICIENT
-            #self.rotationY *= self.ROTATION_CONVERSION_COEFFICIENT
-            #self.rotationZ *= self.ROTATION_CONVERSION_COEFFICIENT
-            #self.rotationW *= self.ROTATION_CONVERSION_COEFFICIENT
-
+            
         else:
             teptep = binascii.b2a_hex(data)
             print('Notification: UNKOWN: hnd {}, data {}'.format(hnd, teptep))
@@ -299,36 +275,6 @@ for i in range (0, readingsRemaining):
 
     boogioPeripheral.waitForNotifications(0)
 
-    
-
-    accelerationX = str(round(boogioDelegate.accelerationX, 2))
-
-    accelerationY = str(round(boogioDelegate.accelerationY, 2))
-
-    accelerationZ = str(round(boogioDelegate.accelerationZ, 2))
-
-
-
-    rotationX = str(round(boogioDelegate.rotationX, 2))
-
-    rotationY = str(round(boogioDelegate.rotationY, 2))
-
-    rotationZ = str(round(boogioDelegate.rotationZ, 2))
-
-    rotationW = str(round(boogioDelegate.rotationW, 2))
-    
-    
-
-    forceToe = str(round(boogioDelegate.forceToe, 2))
-
-    forceBall = str(round(boogioDelegate.forceBall, 2))
-
-    forceArch = str(round(boogioDelegate.forceArch, 2))
-
-    forceHeel = str(round(boogioDelegate.forceHeel, 2))
-
-
-    print("[" + str(i) + " / " + str(readingsRemaining) + "][timestamp][compressed][" + accelerationX + "]")
 
     
 
