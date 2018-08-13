@@ -271,20 +271,18 @@ for svc in boogioPeripheral.services:
                 forceCharacteristic = characteristic
                 forceCharacteristicHandle = characteristic.getHandle()
                 forceCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                forceCCCD.write(b"\x01\x00", True)
+                
             elif characteristic.uuid == "f3641402-00B0-4240-ba50-05ca45bf8abc":
                 accelerationCharacteristic = characteristic
                 accelerationCharacteristicHandle = characteristic.getHandle()
                 accelerationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                accelerationCCCD.write(b"\x01\x00", True)
+                
             elif characteristic.uuid == "f3641403-00B0-4240-ba50-05ca45bf8abc":
                 rotationCharacteristic = characteristic
                 rotationCharacteristicHandle = characteristic.getHandle()
                 rotationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                rotationCCCD.write(b"\x01\x00", True)
+                
             
-
-
 
 
 
@@ -337,9 +335,19 @@ print("Timestamp = " + str(year) + "/" + str(month) + "/" + str(day) + "-" + str
 #boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
 forceCharacteristic.write(str(byteString), withResponse = True)
 
+time.sleep(1)
 
+setProtocolByteString = bytearray()
+setProtocolByteString.append(0x01) # set protocol command
+setProtocolByteString.append(0x02) # synchronization enum
 
+forceCharacteristic.write(str(setProtocolByteString), withResponse = True)
 
+time.sleep(1)
+
+forceCCCD.write(b"\x01\x00", True)
+accelerationCCCD.write(b"\x01\x00", True)
+rotationCCCD.write(b"\x01\x00", True)
 
 
 readingsRemaining = 128
