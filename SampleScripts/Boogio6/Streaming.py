@@ -9,6 +9,7 @@ import struct
 import binascii
 import sys
 import os
+import datetime
 
 import pygame
 from pygame.locals import *
@@ -285,6 +286,52 @@ for svc in boogioPeripheral.services:
                 rotationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
                 rotationCCCD.write(b"\x01\x00", True)
             
+
+
+
+
+
+
+year = datetime.datetime.now().strftime('%Y')
+hexYear = format(int(year), '04x')
+yearLowByte = hexYear[2] + hexYear[3]
+yearHighByte = hexYear[0] + hexYear[1]
+        
+month = str(datetime.datetime.now().strftime('%m'))
+day = str(datetime.datetime.now().strftime('%d'))
+hour = str(datetime.datetime.now().strftime('%H'))
+minute = str(datetime.datetime.now().strftime('%M'))
+second = str(datetime.datetime.now().strftime('%S'))
+        
+#millisecond = datetime.datetime.now().strftime('%f')
+millisecond = 0
+hexMillisecond = format(int(millisecond), '04x')
+millisecondLowByte = hexMillisecond[2] + hexMillisecond[3]
+millisecondHighByte = hexMillisecond[0] + hexMillisecond[1]
+        
+byteString = bytearray()
+byteString.append(0x00) #set time command
+byteString.append(yearLowByte.decode("hex"))
+byteString.append(yearHighByte.decode("hex"))
+byteString.append(int(month))
+byteString.append(int(day))
+byteString.append(int(hour))
+byteString.append(int(minute))
+byteString.append(int(second))
+byteString.append(millisecondLowByte.decode("hex"))
+byteString.append(millisecondHighByte.decode("hex"))
+
+time.sleep(1)
+
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+           
+# upate timestamp
+print("Timestamp = " + str(year) + "/" + str(month) + "/" + str(day) + "-" + str(hour) + ":" + str(minute) + ":" + str(second) + "." + str(millisecond))
+#boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
+forceCharacteristic.write(str(byteString), withResponse = True)
+
 
 
 
