@@ -217,7 +217,6 @@ class MyDelegate(DefaultDelegate):
             rotationZ = struct.unpack('<h', data[8:10])[0]
             rotationW = struct.unpack('<h', data[10:12])[0]
 
-
             print("[" + str(hour) + ":" + str(millisecond) + "][ROTATION]    [" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
                 
 
@@ -332,7 +331,7 @@ setProtocolByteString = bytearray()
 setProtocolByteString.append(0x01) # set protocol command
 setProtocolByteString.append(0x02) # synchronization enum
 
-forceCharacteristic.write(str(setProtocolByteString), withResponse = True)
+rotationCharacteristic.write(str(setProtocolByteString), withResponse = True)
 
 time.sleep(1)
 
@@ -346,23 +345,24 @@ rotationCCCD.write(b"\x01\x00", True)
 syncCount = 10
 sleepTime = 1
     
-setProtocolByteString = bytearray()
-setProtocolByteString.append(0x02) # Sync Command
-setProtocolByteString.append(0x01) # 1 Readings
+syncStep = bytearray()
+syncStep.append(0x02) # Sync Command
+syncStep.append(0x01) # 1 Readings
     
 for i in range(syncCount):
-    forceCharacteristic.write(str(setProtocolByteString), withResponse = True)
+    forceCharacteristic.write(str(syncStep), withResponse = True)
     boogioPeripheral.waitForNotifications(sleepTime)
+    #time.sleep(sleepTime)
 
-for i in range(syncCount):
-    accelerationCharacteristic.write(str(setProtocolByteString), withResponse = True)
-    boogioPeripheral.waitForNotifications(0)
+    accelerationCharacteristic.write(str(syncStep), withResponse = True)
+    boogioPeripheral.waitForNotifications(sleepTime)
+    #time.sleep(sleepTime)
 
-for i in range(syncCount):
-    rotationCharacteristic.write(str(setProtocolByteString), withResponse = True)
-    boogioPeripheral.waitForNotifications(0)
+    rotationCharacteristic.write(str(syncStep), withResponse = True)
+    boogioPeripheral.waitForNotifications(sleepTime)
+    #time.sleep(sleepTime)
     
-        
+    print("\r\n")
     
 
 
