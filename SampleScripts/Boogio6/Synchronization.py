@@ -149,13 +149,7 @@ accelerationCharacteristicHandle = None
 rotationCharacteristicHandle = None
 
 
-doneSyncingForce = False
-doneSyncingAcceleration = False
-doneSyncingRotation = False
 
-forceReadingsCounter = 0
-accelerationReadingsCounter = 0
-rotationReadingsCounter = 0
 
 
 class MyDelegate(DefaultDelegate):
@@ -181,58 +175,52 @@ class MyDelegate(DefaultDelegate):
         
         #Debug print repr(data)
         if (hnd == forceCharacteristicHandle):
-
+            
             hour = struct.unpack('<H', data[0:2])[0]
             millisecond = struct.unpack('<H', data[2:4])[0]
 
-            if not(len(data) == 2 and hour == 511):
-                forceToe = struct.unpack('<H', data[4:6])[0]
-                forceBall = struct.unpack('<H', data[6:8])[0]
-                forceArch = struct.unpack('<H', data[8:10])[0]
-                forceHeel = struct.unpack('<H', data[10:12])[0]
+            
+            forceToe = struct.unpack('<H', data[4:6])[0]
+            forceBall = struct.unpack('<H', data[6:8])[0]
+            forceArch = struct.unpack('<H', data[8:10])[0]
+            forceHeel = struct.unpack('<H', data[10:12])[0]
 
-
-                print("[" +  str(hour) + ":" + str(millisecond) + "][FORCE]       [" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
-                forceReadingsCounter = forceReadingsCounter + 1
-            else:
-                doneSyncingForce = True
+            print("[" +  str(hour) + ":" + str(millisecond) + "][FORCE]       [" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
+                
+            
+            
 
                 
         elif (hnd == accelerationCharacteristicHandle):
- 
+            
             hour = struct.unpack('<H', data[0:2])[0]
             millisecond = struct.unpack('<H', data[2:4])[0]
 
-            if not(len(data) == 2 and hour == 511):
-                accelerationX = struct.unpack('<h', data[4:6])[0]
-                accelerationY = struct.unpack('<h', data[6:8])[0]
-                accelerationZ = struct.unpack('<h', data[8:10])[0]
-                
+            
+            accelerationX = struct.unpack('<h', data[4:6])[0]
+            accelerationY = struct.unpack('<h', data[6:8])[0]
+            accelerationZ = struct.unpack('<h', data[8:10])[0]
 
-                print("[" + str(hour) + ":" + str(millisecond) + "][ACCELERATION][" + str(accelerationX) + " " + str(accelerationY) + " " + str(accelerationZ) + "]")
-                accelerationReadingsCounter = accelerationReadingsCounter + 1
-            else:
-                doneSyncingAcceleration = True
+            print("[" + str(hour) + ":" + str(millisecond) + "][ACCELERATION][" + str(accelerationX) + " " + str(accelerationY) + " " + str(accelerationZ) + "]")
+
 
            
 
         elif (hnd == rotationCharacteristicHandle):
-
             
             hour = struct.unpack('<H', data[0:2])[0]
             millisecond = struct.unpack('<H', data[2:4])[0]
             
-            if not(len(data) == 2 and hour == 511): 
-                rotationX = struct.unpack('<h', data[4:6])[0]
-                rotationY = struct.unpack('<h', data[6:8])[0]
-                rotationZ = struct.unpack('<h', data[8:10])[0]
-                rotationW = struct.unpack('<h', data[10:12])[0]
+           
+            rotationX = struct.unpack('<h', data[4:6])[0]
+            rotationY = struct.unpack('<h', data[6:8])[0]
+            rotationZ = struct.unpack('<h', data[8:10])[0]
+            rotationW = struct.unpack('<h', data[10:12])[0]
 
 
-                print("[" + str(hour) + ":" + str(millisecond) + "][ROTATION]    [" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
-                rotationReadingsCounter = rotationReadingsCounter + 1
-            else:
-                doneSyncingRotation = True
+            print("[" + str(hour) + ":" + str(millisecond) + "][ROTATION]    [" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
+                
+
             
         else:
             teptep = binascii.b2a_hex(data)
@@ -338,7 +326,7 @@ print("Timestamp = " + str(year) + "/" + str(month) + "/" + str(day) + "-" + str
 #boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
 forceCharacteristic.write(str(byteString), withResponse = True)
 
-time.sleep(3)
+time.sleep(1)
 
 setProtocolByteString = bytearray()
 setProtocolByteString.append(0x01) # set protocol command
@@ -355,33 +343,24 @@ rotationCCCD.write(b"\x01\x00", True)
 
 
 
-
-while doneSyncingForce and doneSyncingAcceleration and doneSyncingRotation:
-
-       
-    sleepTime = 1
+syncCount = 10
+sleepTime = 1
     
-    setProtocolByteString = bytearray()
-    setProtocolByteString.append(0x02) # Sync Command
-    setProtocolByteString.append(0x01) # 1 Readings
+setProtocolByteString = bytearray()
+setProtocolByteString.append(0x02) # Sync Command
+setProtocolByteString.append(0x01) # 1 Readings
     
-    notificationsReceived = forceReadingCount
-    while (forceReadingCount ==  notificationsReceived): 
-        forceCharacteristic.write(str(setProtocolByteString), withResponse = True)
-        boogioPeripheral.waitForNotifications(0)
-        time.sleep(sleepTime)
+for i in range(syncCount):
+    forceCharacteristic.write(str(setProtocolByteString), withResponse = True)
+    boogioPeripheral.waitForNotifications(sleepTime)
 
-    notificationsReceived = accelerationReadingCount
-    while (accelerationReadingCount ==  notificationsReceived): 
-        accelerationCharacteristic.write(str(setProtocolByteString), withResponse = True)
-        boogioPeripheral.waitForNotifications(0)
-        time.sleep(sleepTime)
+for i in range(syncCount):
+    accelerationCharacteristic.write(str(setProtocolByteString), withResponse = True)
+    boogioPeripheral.waitForNotifications(0)
 
-    notificationsReceived = rotationReadingCount
-    while (rotationReadingCount ==  notificationsReceived): 
-        rotationCharacteristic.write(str(setProtocolByteString), withResponse = True)
-        boogioPeripheral.waitForNotifications(0)
-        time.sleep(sleepTime)
+for i in range(syncCount):
+    rotationCharacteristic.write(str(setProtocolByteString), withResponse = True)
+    boogioPeripheral.waitForNotifications(0)
     
         
     
