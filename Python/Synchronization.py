@@ -10,6 +10,7 @@ import binascii
 import sys
 import os
 import datetime
+import sqlite3
 
 PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
