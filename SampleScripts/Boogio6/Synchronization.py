@@ -166,6 +166,10 @@ class MyDelegate(DefaultDelegate):
         self.ACCELERATION_CONVERSION_COEFFICIENT = 1.0 / 1000.0
         self.ROTATION_CONVERSION_COEFFICIENT     = 1.0 / 1000.0
 
+        self.forceBufferIsEmpty = False
+        self.accelerationBufferIsEmpty = False
+        self.rotationBufferIsEmpty = False
+
       
 
     def handleNotification(self, hnd, data):
@@ -186,7 +190,9 @@ class MyDelegate(DefaultDelegate):
             forceHeel = struct.unpack('<H', data[10:12])[0]
 
             print("[" +  str(hour) + ":" + str(millisecond) + "][FORCE]       [" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
-                
+
+            if(millisecond == 0 and hour == 511):
+                self.forceBufferIsEmpty = True
             
             
 
@@ -203,6 +209,8 @@ class MyDelegate(DefaultDelegate):
 
             print("[" + str(hour) + ":" + str(millisecond) + "][ACCELERATION][" + str(accelerationX) + " " + str(accelerationY) + " " + str(accelerationZ) + "]")
 
+            if(millisecond == 0 and hour == 511):
+                self.accelerationBufferIsEmpty = True
 
            
 
@@ -218,7 +226,9 @@ class MyDelegate(DefaultDelegate):
             rotationW = struct.unpack('<h', data[10:12])[0]
 
             print("[" + str(hour) + ":" + str(millisecond) + "][ROTATION]    [" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
-                
+
+            if(millisecond == 0 and hour == 511):
+                self.rotationBufferIsEmpty = True
 
             
         else:
@@ -349,21 +359,23 @@ syncStep = bytearray()
 syncStep.append(0x02) # Sync Command
 syncStep.append(0x01) # 1 Readings
     
-for i in range(syncCount):
-    forceCharacteristic.write(str(syncStep), withResponse = True)
-    boogioPeripheral.waitForNotifications(sleepTime)
-    #time.sleep(sleepTime)
-
-    accelerationCharacteristic.write(str(syncStep), withResponse = True)
-    boogioPeripheral.waitForNotifications(sleepTime)
-    #time.sleep(sleepTime)
-
-    rotationCharacteristic.write(str(syncStep), withResponse = True)
-    boogioPeripheral.waitForNotifications(sleepTime)
-    #time.sleep(sleepTime)
+while(True):
+    if(not boogioDelegate.forceBufferIsEmpty):
+        forceCharacteristic.write(str(syncStep), withResponse = True)
+        boogioPeripheral.waitForNotifications(sleepTime)
+    
+    if(not boogioDelegate.accelerationBufferIsEmpty):
+        accelerationCharacteristic.write(str(syncStep), withResponse = True)
+        boogioPeripheral.waitForNotifications(sleepTime)
+    
+    if(not boogioDelegate.rotationBufferIsEmpty):
+        rotationCharacteristic.write(str(syncStep), withResponse = True)
+        boogioPeripheral.waitForNotifications(sleepTime)
     
     print("\r\n")
-    
+
+    if(boogioDelegate.forceBufferIsEmpty and boogioDelegate.accelerationBufferIsEmpty and boogioDelegate.rotationBufferIsEmpty):
+        break
 
 
 
