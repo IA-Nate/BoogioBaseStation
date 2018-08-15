@@ -21,7 +21,7 @@ class BoogioLogger:
         databaseExists = False
         directory = path.dirname(str("/home/pi/Desktop/Logs/") + "/")
         try:
-            os.mkdir(directory, 0755)
+            os.mkdir(directory, 0777)
         except OSError as e:
             print ""
         fileName = self.macAddress+ str(".sqlite")
@@ -35,6 +35,9 @@ class BoogioLogger:
             self.c.execute("CREATE TABLE rotation(datestamp TEXT, x REAL, y REAL, z REAL, w REAL)")
         except sqlite3.OperationalError:
             print "File alread exists. Connecting to that."
+
+    def disconnect(self):
+        self.conn.close()
 
     def commit(self):
         self.conn.commit()

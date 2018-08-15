@@ -10,7 +10,7 @@ import binascii
 import sys
 import os
 import datetime
-import sqlite3
+from BoogioLogger import *
 
 PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
@@ -171,10 +171,16 @@ class MyDelegate(DefaultDelegate):
         self.accelerationBufferIsEmpty = False
         self.rotationBufferIsEmpty = False
 
+        self.logger = BoogioLogger(PERIPHERAL_UUID)
+        
+        
       
 
     def handleNotification(self, hnd, data):
 
+        
+        
+        
         #print(data)
         #print("\n")
         
@@ -183,6 +189,12 @@ class MyDelegate(DefaultDelegate):
             
             hour = struct.unpack('<H', data[0:2])[0]
             millisecond = struct.unpack('<H', data[2:4])[0]
+
+            year = 0
+            month = 0
+            day = 0
+            minute = 0
+            second = 0
 
             
             forceToe = struct.unpack('<H', data[4:6])[0]
@@ -194,6 +206,9 @@ class MyDelegate(DefaultDelegate):
 
             if(millisecond == 0 and hour == 511):
                 self.forceBufferIsEmpty = True
+            else:
+                self.logger.setTime(year, month, day, hour, minute, second, millisecond)
+                self.logger.insertForceValues(forceToe, forceBall, forceArch, forceHeel)
             
             
 
@@ -202,6 +217,12 @@ class MyDelegate(DefaultDelegate):
             
             hour = struct.unpack('<H', data[0:2])[0]
             millisecond = struct.unpack('<H', data[2:4])[0]
+
+            year = 0
+            month = 0
+            day = 0
+            minute = 0
+            second = 0
 
             
             accelerationX = struct.unpack('<h', data[4:6])[0]
@@ -212,13 +233,21 @@ class MyDelegate(DefaultDelegate):
 
             if(millisecond == 0 and hour == 511):
                 self.accelerationBufferIsEmpty = True
-
+            else:
+                self.logger.setTime(year, month, day, hour, minute, second, millisecond)
+                self.logger.insertAccelerationValues(accelerationX, accelerationY, accelerationZ)
            
 
         elif (hnd == rotationCharacteristicHandle):
             
             hour = struct.unpack('<H', data[0:2])[0]
             millisecond = struct.unpack('<H', data[2:4])[0]
+
+            year = 0
+            month = 0
+            day = 0
+            minute = 0
+            second = 0
             
            
             rotationX = struct.unpack('<h', data[4:6])[0]
@@ -230,6 +259,9 @@ class MyDelegate(DefaultDelegate):
 
             if(millisecond == 0 and hour == 511):
                 self.rotationBufferIsEmpty = True
+            else:
+                self.logger.setTime(year, month, day, hour, minute, second, millisecond)
+                self.logger.insertRotationValues(rotationX, rotationY, rotationZ, rotationW)
 
             
         else:
@@ -351,14 +383,14 @@ accelerationCCCD.write(b"\x01\x00", True)
 rotationCCCD.write(b"\x01\x00", True)
 
 
-
-
 syncCount = 10
 sleepTime = 1
     
 syncStep = bytearray()
 syncStep.append(0x02) # Sync Command
 syncStep.append(0x01) # 1 Readings
+
+boogioDelegate.logger.connect()
     
 while(True):
     if(not boogioDelegate.forceBufferIsEmpty):
@@ -379,6 +411,7 @@ while(True):
         break
 
 
-
+boogioDelegate.logger.commit()
+boogioDelegate.logger.disconnect()
 print("Done Syncing.")
 boogioPeripheral.disconnect()
