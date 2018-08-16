@@ -218,7 +218,7 @@ class MyDelegate(DefaultDelegate):
             forceArch = struct.unpack('<H', data[13:15])[0]
             forceHeel = struct.unpack('<H', data[15:17])[0]
 
-            print(header + "[FORCE]-----------[" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch)+ " " + str(forceHeel) + "]")
+            print(header + "[FORCE]-----------[" + str(forceToe) + "  " + str(forceBall) + "  " + str(forceArch)+ "  " + str(forceHeel) + "]")
 
             
 
@@ -232,7 +232,7 @@ class MyDelegate(DefaultDelegate):
             accelerationY = struct.unpack('<h', data[11:13])[0]
             accelerationZ = struct.unpack('<h', data[13:15])[0]
 
-            print(header + "[ACCELERATION]----[" + str(accelerationX) + " " + str(accelerationY) + " " + str(accelerationZ) + "]")
+            print(header + "[ACCELERATION]----[" + str(accelerationX) + "  " + str(accelerationY) + "  " + str(accelerationZ) + "]")
 
 
             self.logger.insertAccelerationValues(accelerationX, accelerationY, accelerationZ)
@@ -247,7 +247,7 @@ class MyDelegate(DefaultDelegate):
             rotationZ = struct.unpack('<h', data[13:15])[0]
             rotationW = struct.unpack('<h', data[15:17])[0]
 
-            print(header + "[ROTATION]--------[" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
+            print(header + "[ROTATION]--------[" + str(rotationX) + "  " + str(rotationY) + "  " + str(rotationZ) + "  " + str(rotationW) + "]")
 
 
             self.logger.insertRotationValues(rotationX, rotationY, rotationZ, rotationW)
