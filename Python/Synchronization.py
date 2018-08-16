@@ -178,90 +178,79 @@ class MyDelegate(DefaultDelegate):
 
     def handleNotification(self, hnd, data):
 
+        year = 0
+        month = 0
+        day = 0
+        hour = 0
+        minute = 0
+        second = 0
+        millisecond = 0
+
         
+        if(struct.unpack('<B', data[0:1])[0] == 255 and struct.unpack('<B', data[1:2])[0] == 01):
+            if(hnd == forceCharacteristicHandle):
+                self.forceBufferIsEmpty = True
+                return
+            elif(hnd == accelerationCharacteristicHandle):
+                self.accelerationBufferIsEmpty = True
+                return
+            elif(hnd == rotationCharacteristicHandle):
+                self.rotationBufferIsEmpty = True
+                return
+
         
+        year = struct.unpack('<H', data[0:2])[0]
+        month = struct.unpack('<B', data[2:3])[0]
+        day = struct.unpack('<B', data[3:4])[0]
+        hour = struct.unpack('<B', data[4:5])[0]
+        minute = struct.unpack('<B', data[5:6])[0]
+        second = struct.unpack('<B', data[6:7])[0]
+        millisecond = struct.unpack('<H', data[7:9])[0]
         
-        #print(data)
-        #print("\n")
+
+        self.logger.setTime(year, month, day, hour, minute, second, millisecond)
+        header = "[" + str(year) + "/" + str(month) + "/" + str(day) + " " + str(hour) + ":" + str(minute) + ":" + str(second) + "." + str(millisecond) + "]"
         
         #Debug print repr(data)
         if (hnd == forceCharacteristicHandle):
-            
-            hour = struct.unpack('<H', data[0:2])[0]
-            millisecond = struct.unpack('<H', data[2:4])[0]
+            forceToe = struct.unpack('<H', data[9:11])[0]
+            forceBall = struct.unpack('<H', data[11:13])[0]
+            forceArch = struct.unpack('<H', data[13:15])[0]
+            forceHeel = struct.unpack('<H', data[15:17])[0]
 
-            year = 0
-            month = 0
-            day = 0
-            minute = 0
-            second = 0
+            print(header + "[FORCE]       [" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
 
             
-            forceToe = struct.unpack('<H', data[4:6])[0]
-            forceBall = struct.unpack('<H', data[6:8])[0]
-            forceArch = struct.unpack('<H', data[8:10])[0]
-            forceHeel = struct.unpack('<H', data[10:12])[0]
 
-            print("[" +  str(hour) + ":" + str(millisecond) + "][FORCE]       [" + str(forceToe) + " " + str(forceBall) + " " + str(forceArch) + " " + str(forceHeel) + "]")
-
-            if(millisecond == 0 and hour == 511):
-                self.forceBufferIsEmpty = True
-            else:
-                self.logger.setTime(year, month, day, hour, minute, second, millisecond)
-                self.logger.insertForceValues(forceToe, forceBall, forceArch, forceHeel)
+            self.logger.insertForceValues(forceToe, forceBall, forceArch, forceHeel)
             
             
 
                 
-        elif (hnd == accelerationCharacteristicHandle):
-            
-            hour = struct.unpack('<H', data[0:2])[0]
-            millisecond = struct.unpack('<H', data[2:4])[0]
+        elif (hnd == accelerationCharacteristicHandle):           
+            accelerationX = struct.unpack('<h', data[9:11])[0]
+            accelerationY = struct.unpack('<h', data[11:13])[0]
+            accelerationZ = struct.unpack('<h', data[13:15])[0]
 
-            year = 0
-            month = 0
-            day = 0
-            minute = 0
-            second = 0
+            print(header + "[ACCELERATION][" + str(accelerationX) + " " + str(accelerationY) + " " + str(accelerationZ) + "]")
 
-            
-            accelerationX = struct.unpack('<h', data[4:6])[0]
-            accelerationY = struct.unpack('<h', data[6:8])[0]
-            accelerationZ = struct.unpack('<h', data[8:10])[0]
 
-            print("[" + str(hour) + ":" + str(millisecond) + "][ACCELERATION][" + str(accelerationX) + " " + str(accelerationY) + " " + str(accelerationZ) + "]")
-
-            if(millisecond == 0 and hour == 511):
-                self.accelerationBufferIsEmpty = True
-            else:
-                self.logger.setTime(year, month, day, hour, minute, second, millisecond)
-                self.logger.insertAccelerationValues(accelerationX, accelerationY, accelerationZ)
+            self.logger.insertAccelerationValues(accelerationX, accelerationY, accelerationZ)
            
 
         elif (hnd == rotationCharacteristicHandle):
             
-            hour = struct.unpack('<H', data[0:2])[0]
-            millisecond = struct.unpack('<H', data[2:4])[0]
 
-            year = 0
-            month = 0
-            day = 0
-            minute = 0
-            second = 0
-            
            
-            rotationX = struct.unpack('<h', data[4:6])[0]
-            rotationY = struct.unpack('<h', data[6:8])[0]
-            rotationZ = struct.unpack('<h', data[8:10])[0]
-            rotationW = struct.unpack('<h', data[10:12])[0]
+            rotationX = struct.unpack('<h', data[9:11])[0]
+            rotationY = struct.unpack('<h', data[11:13])[0]
+            rotationZ = struct.unpack('<h', data[13:15])[0]
+            rotationW = struct.unpack('<h', data[15:17])[0]
 
-            print("[" + str(hour) + ":" + str(millisecond) + "][ROTATION]    [" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
+            print(header + "[ROTATION]    [" + str(rotationX) + " " + str(rotationY) + " " + str(rotationZ) + " " + str(rotationW) + "]")
 
-            if(millisecond == 0 and hour == 511):
-                self.rotationBufferIsEmpty = True
-            else:
-                self.logger.setTime(year, month, day, hour, minute, second, millisecond)
-                self.logger.insertRotationValues(rotationX, rotationY, rotationZ, rotationW)
+
+            self.logger.insertRotationValues(rotationX, rotationY, rotationZ, rotationW)
 
             
         else:
