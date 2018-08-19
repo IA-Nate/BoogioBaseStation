@@ -289,7 +289,10 @@ for svc in boogioPeripheral.services:
 
 
 
-
+setSampleRateByteString = bytearray()
+setSampleRateByteString.append(0x04) # set sample rate command
+setSampleRateByteString.append(0x08) # frequency argument (Hz)
+rotationCharacteristic.write(str(setSampleRateByteString), withResponse = True)
 
 
 year = datetime.datetime.now().strftime('%Y')

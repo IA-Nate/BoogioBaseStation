@@ -365,6 +365,14 @@ setProtocolByteString.append(0x02) # synchronization enum
 
 rotationCharacteristic.write(str(setProtocolByteString), withResponse = True)
 
+
+
+setSampleRateByteString = bytearray()
+setSampleRateByteString.append(0x04) # set sample rate command
+setSampleRateByteString.append(0x01) # frequency argument (Hz)
+rotationCharacteristic.write(str(setSampleRateByteString), withResponse = True)
+
+
 time.sleep(1)
 
 forceCCCD.write(b"\x01\x00", True)
