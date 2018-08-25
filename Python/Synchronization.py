@@ -12,7 +12,7 @@ import os
 import datetime
 from BoogioLogger import *
 
-PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
+PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
 
 if os.getenv('C', '1') == '0':
     ANSI_RED = ''
