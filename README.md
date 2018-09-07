@@ -61,6 +61,8 @@ After restarting, install bluepy: https://www.elinux.org/RPi_Bluetooth_LE
 $ sudo apt-get install python-pip
 $ sudo apt-get install libglib2.0-dev -y
 $ sudo pip install bluepy
+$ sudo pip install numpy
+$ sudo pip install pyquaternion
 ```
 
 Clone the Boogio Base Station Repo

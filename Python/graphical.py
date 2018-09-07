@@ -14,6 +14,8 @@ import datetime
 import pygame
 from pygame.locals import *
 
+import numpy
+
 
 #PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
 PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
@@ -369,36 +371,150 @@ while not shouldQuit:
             if event.key == K_ESCAPE:
                 shouldQuit = True
 
-        boogioPeripheral.waitForNotifications(0)
-        
+    boogioPeripheral.waitForNotifications(0)
 
-        accelerationX = str(round(boogioDelegate.accelerationX, 2))
+    hSpacing = 13
+    vSpacing = 24
+    cursorX = hSpacing
+    cursorY = vSpacing
+    
 
-        accelerationY = str(round(boogioDelegate.accelerationY, 2))
+    #labels 
+    DISPLAYSURF.fill(BLACK)
+    labelSurface = metricsFont.render("Peripheral: ", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing))
 
-        accelerationZ = str(round(boogioDelegate.accelerationZ, 2))
+    
+    labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 3))
+    
+    labelSurface = metricsFont.render("[Euler]:", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 4))
+
+    labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 6))
+
+    labelSurface = metricsFont.render("[Quaternion]:", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 7))
+
+    labelSurface = metricsFont.render("Force ", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
+
+    labelSurface = metricsFont.render("[ADC/1000]:", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 11))
+
+    
+    # readings
+    cursorX = SCREEN_WIDTH / 8
+
+    labelSurface = metricsFont.render(PERIPHERAL_UUID, 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
+
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 1))
+
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 2))
+
+    labelSurface = metricsFont.render("X", 1, RED)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 2))
+
+    
+    labelSurface = metricsFont.render("Y", 1, GREEN)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 2))
+
+    
+    labelSurface = metricsFont.render("Z", 1, BLUE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 2))
+    
+    labelSurface = metricsFont.render("W", 1, YELLOW)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 2))
 
 
-        rotationX = str(round(boogioDelegate.rotationX, 2))
-
-        rotationY = str(round(boogioDelegate.rotationY, 2))
-
-        rotationZ = str(round(boogioDelegate.rotationZ, 2))
-
-        rotationW = str(round(boogioDelegate.rotationW, 2))
-            
-
-        forceToe = str(round(boogioDelegate.forceToe, 2))
-
-        forceBall = str(round(boogioDelegate.forceBall, 2))
-
-        forceArch = str(round(boogioDelegate.forceArch, 2))
-
-        forceHeel = str(round(boogioDelegate.forceHeel, 2))
 
 
-        
-        pygame.display.update()
+    rotationQX = str(round(boogioDelegate.rotationX, 2))
+    rotationQY = str(round(boogioDelegate.rotationY, 2))
+    rotationQZ = str(round(boogioDelegate.rotationZ, 2))
+    rotationQW = str(round(boogioDelegate.rotationW, 2))
+
+    
+
+    rotationEX = str(0)
+    labelSurface = metricsFont.render(rotationEX, 1, RED)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 4))
+
+    rotationEY = str(0)
+    labelSurface = metricsFont.render(rotationEY, 1, GREEN)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 4))
+
+    rotationEZ = str(0)
+    labelSurface = metricsFont.render(rotationEZ, 1, BLUE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 4))
+
+
+
+    
+
+    
+    labelSurface = metricsFont.render(rotationQX, 1, RED)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 7))
+
+    
+    labelSurface = metricsFont.render(rotationQY, 1, GREEN)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 7))
+
+    
+    labelSurface = metricsFont.render(rotationQZ, 1, BLUE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 7))
+
+    
+    labelSurface = metricsFont.render(rotationQW, 1, YELLOW)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 7))
+    
+    
+    
+    
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 8))
+    
+    labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+    DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 9))
+
+
+    labelSurface = metricsFont.render("Toe", 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 9))
+    
+    labelSurface = metricsFont.render("Ball", 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 9))
+
+    labelSurface = metricsFont.render("Arch", 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 9))
+
+    labelSurface = metricsFont.render("Heel", 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 9))
+    
+    
+
+    forceToe = str(round(boogioDelegate.forceToe, 2))
+    labelSurface = metricsFont.render(forceToe, 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 11))
+
+    forceBall = str(round(boogioDelegate.forceBall, 2))
+    labelSurface = metricsFont.render(forceBall, 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 11))
+
+    forceArch = str(round(boogioDelegate.forceArch, 2))
+    labelSurface = metricsFont.render(forceArch, 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 11))
+
+    forceHeel = str(round(boogioDelegate.forceHeel, 2))
+    labelSurface = metricsFont.render(forceHeel, 1, ORANGE)
+    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 11))
+
+
+    
+    pygame.display.update()
 
 
 
