@@ -63,6 +63,7 @@ $ sudo apt-get install libglib2.0-dev -y
 $ sudo pip install bluepy
 $ sudo pip install numpy
 $ sudo pip install pyquaternion
+$ sudo pip install tf
 ```
 
 Clone the Boogio Base Station Repo
