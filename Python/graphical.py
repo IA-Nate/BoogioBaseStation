@@ -14,8 +14,11 @@ import datetime
 import pygame
 from pygame.locals import *
 
-import numpy
+import transformations
+from pyquaternion import Quaternion
 
+from nibabel import *
+import numpy as np
 
 #PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
 PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
@@ -433,22 +436,41 @@ while not shouldQuit:
 
 
 
-    rotationQX = str(round(boogioDelegate.rotationX, 2))
-    rotationQY = str(round(boogioDelegate.rotationY, 2))
-    rotationQZ = str(round(boogioDelegate.rotationZ, 2))
-    rotationQW = str(round(boogioDelegate.rotationW, 2))
+    rotationQX = boogioDelegate.rotationX/1000.0
+    rotationQY = boogioDelegate.rotationY/1000.0
+    rotationQZ = boogioDelegate.rotationZ/1000.0
+    rotationQW = boogioDelegate.rotationW/1000.0
 
+    #angles = transformations.euler_from_quaternion([rotationQW, rotationQX, rotationQY, rotationQZ])
+    #transformations.numpy.allclose(angles, [0.123, 0, 0])
+
+    #my_quaternion = Quaternion(axis=[rotationQX, rotationQY, rotationQZ], angle=rotationQW)
+    #angles = my_quaternion.vector
+
+    angles = eulerangles.quat2euler([rotationQW, rotationQX, rotationQY, rotationQZ])
+    np.allclose(angles, [0.123, 0, 0]) 
     
+    # angles[0] = ROLL (Y)
+    # angles[1] = PITCH (X)
+    # angles[2] = YAW (Z)
 
-    rotationEX = str(0)
+    roll = angles[0] * 57.295779513
+    pitch = angles[1] * 57.295779513
+    yaw = angles[2] * 57.295779513
+
+    roll = round(roll, 2)
+    pitch = round(pitch, 2)
+    yaw = round(yaw, 2)
+
+    rotationEX = str(pitch)
     labelSurface = metricsFont.render(rotationEX, 1, RED)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 4))
 
-    rotationEY = str(0)
+    rotationEY = str(roll)
     labelSurface = metricsFont.render(rotationEY, 1, GREEN)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 4))
 
-    rotationEZ = str(0)
+    rotationEZ = str(yaw)
     labelSurface = metricsFont.render(rotationEZ, 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 4))
 
@@ -457,19 +479,19 @@ while not shouldQuit:
     
 
     
-    labelSurface = metricsFont.render(rotationQX, 1, RED)
+    labelSurface = metricsFont.render(str(rotationQX), 1, RED)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 7))
 
     
-    labelSurface = metricsFont.render(rotationQY, 1, GREEN)
+    labelSurface = metricsFont.render(str(rotationQY), 1, GREEN)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 7))
 
     
-    labelSurface = metricsFont.render(rotationQZ, 1, BLUE)
+    labelSurface = metricsFont.render(str(rotationQZ), 1, BLUE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 7))
 
     
-    labelSurface = metricsFont.render(rotationQW, 1, YELLOW)
+    labelSurface = metricsFont.render(str(rotationQW), 1, YELLOW)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 7))
     
     

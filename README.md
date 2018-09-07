@@ -64,6 +64,7 @@ $ sudo pip install bluepy
 $ sudo pip install numpy
 $ sudo pip install pyquaternion
 $ sudo pip install tf
+$ sudo pip install nibabel
 ```
 
 Clone the Boogio Base Station Repo
