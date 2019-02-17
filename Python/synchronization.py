@@ -11,6 +11,8 @@ import sys
 import os
 import datetime
 from BoogioLogger import *
+import tzlocal
+
 
 #PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
 PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
@@ -179,12 +181,6 @@ class MyDelegate(DefaultDelegate):
 
     def handleNotification(self, hnd, data):
 
-        if(len(data) < 8):
-            return
-        
-        
-
-        
         if(struct.unpack('<B', data[0:1])[0] == 255 and struct.unpack('<B', data[1:2])[0] == 01):
             if(hnd == forceCharacteristicHandle):
                 self.forceBufferIsEmpty = True
@@ -201,9 +197,9 @@ class MyDelegate(DefaultDelegate):
         
 
         #self.logger.setTime(year, month, day, hour, minute, second, millisecond)
-        header = "[" + str(milliseconds) + "]"
         
-        #header = "[" + str(year) + "/" + str(month).zfill(2) + "/" + str(day).zfill(2) + " " + str(hour).zfill(2) + ":" + str(minute).zfill(2) + ":" + str(second).zfill(2) + "." + str(millisecond).zfill(3) + "]"
+        #header = "[" + str(milliseconds) + "]"
+        header = "[" + datetime.datetime.fromtimestamp(milliseconds/1000.0).strftime("%Y-%m-%d %H:%M:%S.%f") + "]"
         
         #Debug print repr(data)
         if (hnd == forceCharacteristicHandle):
