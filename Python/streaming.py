@@ -296,34 +296,19 @@ setSampleRateByteString.append(0x04) # frequency argument (Hz)
 rotationCharacteristic.write(str(setSampleRateByteString), withResponse = True)
 
 
-year = datetime.datetime.now().strftime('%Y')
-hexYear = format(int(year), '04x')
-yearLowByte = hexYear[2] + hexYear[3]
-yearHighByte = hexYear[0] + hexYear[1]
-        
-month = str(datetime.datetime.now().strftime('%m'))
-day = str(datetime.datetime.now().strftime('%d'))
-hour = str(datetime.datetime.now().strftime('%H'))
-minute = str(datetime.datetime.now().strftime('%M'))
-second = str(datetime.datetime.now().strftime('%S'))
-        
-#millisecond = datetime.datetime.now().strftime('%f')
-millisecond = 0
-hexMillisecond = format(int(millisecond), '04x')
-millisecondLowByte = hexMillisecond[2] + hexMillisecond[3]
-millisecondHighByte = hexMillisecond[0] + hexMillisecond[1]
+current_time = int(round(time.time() * 1000))
+
         
 byteString = bytearray()
 byteString.append(0x00) #set time command
-byteString.append(yearLowByte.decode("hex"))
-byteString.append(yearHighByte.decode("hex"))
-byteString.append(int(month))
-byteString.append(int(day))
-byteString.append(int(hour))
-byteString.append(int(minute))
-byteString.append(int(second))
-byteString.append(millisecondLowByte.decode("hex"))
-byteString.append(millisecondHighByte.decode("hex"))
+byteString.append((current_time >> 56) & 0xff)
+byteString.append((current_time >> 48) & 0xff)
+byteString.append((current_time >> 40) & 0xff)
+byteString.append((current_time >> 32) & 0xff)
+byteString.append((current_time >> 24) & 0xff)
+byteString.append((current_time >> 16) & 0xff)
+byteString.append((current_time >> 8) & 0xff)
+byteString.append((current_time >> 0) & 0xff)
 
 time.sleep(1)
 
@@ -332,7 +317,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
            
 # upate timestamp
-print("Timestamp = " + str(year) + "/" + str(month) + "/" + str(day) + "-" + str(hour) + ":" + str(minute) + ":" + str(second) + "." + str(millisecond))
+print("Timestamp = " + str(current_time))
 #boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
 forceCharacteristic.write(str(byteString), withResponse = True)
 
