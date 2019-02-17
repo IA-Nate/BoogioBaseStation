@@ -9,13 +9,7 @@ from os import path
 class BoogioLogger:
     def __init__(self, macAddress):
         self.macAddress = macAddress
-        self.year = 0
-        self.month = 0
-        self.day = 0
-        self.hour = 0
-        self.minute = 0
-        self.second = 0
-        self.millisecond = 0
+        self.datetime = ""
         
     def connect(self):
         databaseExists = False
@@ -42,18 +36,11 @@ class BoogioLogger:
     def commit(self):
         self.conn.commit()
         
-    def setTime(self, year, month, day, hour, minute, second, millisecond):
-        self.year = year
-        self.month = month
-        self.day = day
-        self.hour = hour
-        self.minute = minute
-        self.second = second
-        self.millisecond = millisecond
+    def setTime(self, datetime):
+        self.datetime = datetime
         
     def getTime(self):
-        return str(str(self.year) + "-" + str(self.month) + "-" + str(self.day) + " " + str(self.hour) + ":" + str(self.minute) + ":" + str(self.second) + "." + str(self.millisecond))
-        #return str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'))
+        return self.datetime
     
     def insertForceValues(self, toe, ball, arch, heel):
         date = self.getTime()

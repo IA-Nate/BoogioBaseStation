@@ -11,7 +11,6 @@ import sys
 import os
 import datetime
 from BoogioLogger import *
-import tzlocal
 
 
 #PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
@@ -196,10 +195,11 @@ class MyDelegate(DefaultDelegate):
         milliseconds = struct.unpack('>Q', data[0:8])[0]
         
 
-        #self.logger.setTime(year, month, day, hour, minute, second, millisecond)
+        timestamp = datetime.datetime.fromtimestamp(milliseconds/1000.0).strftime("%Y-%m-%d %H:%M:%S.%f")
+        self.logger.setTime(timestamp)
         
         #header = "[" + str(milliseconds) + "]"
-        header = "[" + datetime.datetime.fromtimestamp(milliseconds/1000.0).strftime("%Y-%m-%d %H:%M:%S.%f") + "]"
+        header = "[" + timestamp + "]"
         
         #Debug print repr(data)
         if (hnd == forceCharacteristicHandle):
