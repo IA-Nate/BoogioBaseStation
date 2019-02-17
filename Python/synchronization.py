@@ -179,13 +179,10 @@ class MyDelegate(DefaultDelegate):
 
     def handleNotification(self, hnd, data):
 
-        year = 0
-        month = 0
-        day = 0
-        hour = 0
-        minute = 0
-        second = 0
-        millisecond = 0
+        if(len(data) < 8):
+            return
+        
+        
 
         
         if(struct.unpack('<B', data[0:1])[0] == 255 and struct.unpack('<B', data[1:2])[0] == 01):
@@ -199,25 +196,21 @@ class MyDelegate(DefaultDelegate):
                 self.rotationBufferIsEmpty = True
                 return
 
-        
-        year = struct.unpack('<H', data[0:2])[0]
-        month = struct.unpack('<B', data[2:3])[0]
-        day = struct.unpack('<B', data[3:4])[0]
-        hour = struct.unpack('<B', data[4:5])[0]
-        minute = struct.unpack('<B', data[5:6])[0]
-        second = struct.unpack('<B', data[6:7])[0]
-        millisecond = struct.unpack('<H', data[7:9])[0]
+    
+        milliseconds = struct.unpack('>Q', data[0:8])[0]
         
 
-        self.logger.setTime(year, month, day, hour, minute, second, millisecond)
-        header = "[" + str(year) + "/" + str(month).zfill(2) + "/" + str(day).zfill(2) + " " + str(hour).zfill(2) + ":" + str(minute).zfill(2) + ":" + str(second).zfill(2) + "." + str(millisecond).zfill(3) + "]"
+        #self.logger.setTime(year, month, day, hour, minute, second, millisecond)
+        header = "[" + str(milliseconds) + "]"
+        
+        #header = "[" + str(year) + "/" + str(month).zfill(2) + "/" + str(day).zfill(2) + " " + str(hour).zfill(2) + ":" + str(minute).zfill(2) + ":" + str(second).zfill(2) + "." + str(millisecond).zfill(3) + "]"
         
         #Debug print repr(data)
         if (hnd == forceCharacteristicHandle):
-            forceToe = struct.unpack('<H', data[9:11])[0]
-            forceBall = struct.unpack('<H', data[11:13])[0]
-            forceArch = struct.unpack('<H', data[13:15])[0]
-            forceHeel = struct.unpack('<H', data[15:17])[0]
+            forceToe = struct.unpack('<H', data[8:10])[0]
+            forceBall = struct.unpack('<H', data[10:12])[0]
+            forceArch = struct.unpack('<H', data[12:14])[0]
+            forceHeel = struct.unpack('<H', data[14:16])[0]
 
             print(header + "[FORCE]-----------[" + str(forceToe) + "  " + str(forceBall) + "  " + str(forceArch)+ "  " + str(forceHeel) + "]")
 
@@ -229,9 +222,9 @@ class MyDelegate(DefaultDelegate):
 
                 
         elif (hnd == accelerationCharacteristicHandle):           
-            accelerationX = struct.unpack('<h', data[9:11])[0]
-            accelerationY = struct.unpack('<h', data[11:13])[0]
-            accelerationZ = struct.unpack('<h', data[13:15])[0]
+            accelerationX = struct.unpack('<h', data[8:10])[0]
+            accelerationY = struct.unpack('<h', data[10:12])[0]
+            accelerationZ = struct.unpack('<h', data[12:14])[0]
 
             print(header + "[ACCELERATION]----[" + str(accelerationX) + "  " + str(accelerationY) + "  " + str(accelerationZ) + "]")
 
@@ -243,10 +236,10 @@ class MyDelegate(DefaultDelegate):
             
 
            
-            rotationX = struct.unpack('<h', data[9:11])[0]
-            rotationY = struct.unpack('<h', data[11:13])[0]
-            rotationZ = struct.unpack('<h', data[13:15])[0]
-            rotationW = struct.unpack('<h', data[15:17])[0]
+            rotationX = struct.unpack('<h', data[8:10])[0]
+            rotationY = struct.unpack('<h', data[10:12])[0]
+            rotationZ = struct.unpack('<h', data[12:14])[0]
+            rotationW = struct.unpack('<h', data[14:16])[0]
 
             print(header + "[ROTATION]--------[" + str(rotationX) + "  " + str(rotationY) + "  " + str(rotationZ) + "  " + str(rotationW) + "]")
 
@@ -317,6 +310,7 @@ ORANGE = (252, 97, 38)
 YELLOW = (255, 255, 15)
 
 
+current_time = int(round(time.time() * 1000))
 
 year = datetime.datetime.now().strftime('%Y')
 hexYear = format(int(year), '04x')
@@ -337,15 +331,14 @@ millisecondHighByte = hexMillisecond[0] + hexMillisecond[1]
         
 byteString = bytearray()
 byteString.append(0x00) #set time command
-byteString.append(yearLowByte.decode("hex"))
-byteString.append(yearHighByte.decode("hex"))
-byteString.append(int(month))
-byteString.append(int(day))
-byteString.append(int(hour))
-byteString.append(int(minute))
-byteString.append(int(second))
-byteString.append(millisecondLowByte.decode("hex"))
-byteString.append(millisecondHighByte.decode("hex"))
+byteString.append((current_time >> 56) & 0xff)
+byteString.append((current_time >> 48) & 0xff)
+byteString.append((current_time >> 40) & 0xff)
+byteString.append((current_time >> 32) & 0xff)
+byteString.append((current_time >> 24) & 0xff)
+byteString.append((current_time >> 16) & 0xff)
+byteString.append((current_time >> 8) & 0xff)
+byteString.append((current_time >> 0) & 0xff)
 
 time.sleep(1)
 
