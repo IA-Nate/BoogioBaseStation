@@ -271,7 +271,7 @@ for svc in boogioPeripheral.services:
 
 setSampleRateByteString = bytearray()
 setSampleRateByteString.append(0x04) # set sample rate command
-setSampleRateByteString.append(0x10) # frequency argument (Hz)
+setSampleRateByteString.append(0x19) # frequency argument (Hz)
 buffer1Characteristic.write(str(setSampleRateByteString), withResponse = True)
 
 
@@ -433,13 +433,13 @@ while not shouldQuit:
     DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 9))
 
 
-    labelSurface = metricsFont.render("F(0+1+2)/3", 1, ORANGE)
+    labelSurface = metricsFont.render("(F0+F1+F2)/3", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 9))
     
-    labelSurface = metricsFont.render("F(3+4)/2", 1, ORANGE)
+    labelSurface = metricsFont.render("(F3+F4)/2", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 9))
 
-    labelSurface = metricsFont.render("F(5+6+7)/3", 1, ORANGE)
+    labelSurface = metricsFont.render("(F5+F6+F7)/3", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 9))
     
     
