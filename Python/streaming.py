@@ -148,10 +148,7 @@ if __name__ == "__main__":
     main()
 
 
-
-forceCharacteristicHandle = None
-accelerationCharacteristicHandle = None
-rotationCharacteristicHandle = None
+buffer1CharacteristicHandle = None
 
 
 
@@ -171,10 +168,18 @@ class MyDelegate(DefaultDelegate):
         self.ACCELERATION_CONVERSION_COEFFICIENT = 1.0 / 1000.0
         self.ROTATION_CONVERSION_COEFFICIENT     = 1.0 / 1000.0
 
-        self.forceToe = 0.00
-        self.forceBall = 0.00
-        self.forceArch = 0.00
-        self.forceHeel = 0.00
+        self.force0 = 0.00
+        self.force1 = 0.00
+        self.force2 = 0.00
+        self.force3 = 0.00
+        self.force4 = 0.00
+        self.force5 = 0.00
+        self.force6 = 0.00
+        self.force7 = 0.00
+        
+        self.force012 = 0.00
+        self.force34  = 0.00
+        self.force567 = 0.00
 
         self.accelerationX = 0.000
         self.accelerationY = 0.000
@@ -191,16 +196,17 @@ class MyDelegate(DefaultDelegate):
         #print("\n")
         
         #Debug print repr(data)
-        if (hnd == forceCharacteristicHandle):
-            self.forceToe = struct.unpack('<H', data[0:2])[0]
-            self.forceBall = struct.unpack('<H', data[2:4])[0]
-            self.forceArch = struct.unpack('<H', data[4:6])[0]
-            self.forceHeel = struct.unpack('<H', data[6:8])[0]
-            
-        elif (hnd == accelerationCharacteristicHandle):
+        if (hnd == buffer1CharacteristicHandle):
             self.accelerationX = struct.unpack('<H', data[0:2])[0]
             self.accelerationY = struct.unpack('<H', data[2:4])[0]
             self.accelerationZ = struct.unpack('<H', data[4:6])[0]
+            self.rotationX     = struct.unpack('<H', data[6:8])[0]
+            self.rotationY     = struct.unpack('<H', data[8:10])[0]
+            self.rotationZ     = struct.unpack('<H', data[10:12])[0]
+            self.rotationW     = struct.unpack('<H', data[12:14])[0]
+            self.force012      = struct.unpack('<H', data[14:16])[0]
+            self.force34       = struct.unpack('<H', data[16:18])[0]
+            self.force567      = struct.unpack('<H', data[18:20])[0]
 
             #2's complement
             if(self.accelerationX > self.HALF_OF_MAX_SHORT_VALUE):
@@ -210,15 +216,6 @@ class MyDelegate(DefaultDelegate):
             if(self.accelerationZ > self.HALF_OF_MAX_SHORT_VALUE):
                self.accelerationZ = self.accelerationZ - self.MAX_SHORT_VALUE
 
-            #self.accelerationX *= self.ACCELERATION_CONVERSION_COEFFICIENT
-            #self.accelerationY *= self.ACCELERATION_CONVERSION_COEFFICIENT
-            #self.accelerationZ *= self.ACCELERATION_CONVERSION_COEFFICIENT
-
-        elif (hnd == rotationCharacteristicHandle):
-            self.rotationX = struct.unpack('<H', data[0:2])[0]
-            self.rotationY = struct.unpack('<H', data[2:4])[0]
-            self.rotationZ = struct.unpack('<H', data[4:6])[0]
-            self.rotationW = struct.unpack('<H', data[6:8])[0]
 
             #2's complement
             if(self.rotationX > self.HALF_OF_MAX_SHORT_VALUE):
@@ -230,10 +227,6 @@ class MyDelegate(DefaultDelegate):
             if(self.rotationW > self.HALF_OF_MAX_SHORT_VALUE):
                self.rotationW = self.rotationW - self.MAX_SHORT_VALUE
 
-            #self.rotationX *= self.ROTATION_CONVERSION_COEFFICIENT
-            #self.rotationY *= self.ROTATION_CONVERSION_COEFFICIENT
-            #self.rotationZ *= self.ROTATION_CONVERSION_COEFFICIENT
-            #self.rotationW *= self.ROTATION_CONVERSION_COEFFICIENT
 
         else:
             teptep = binascii.b2a_hex(data)
@@ -256,9 +249,7 @@ boogioPeripheral.setDelegate(boogioDelegate)
 
 boogioShoeSensorService = None
 
-forceCharacteristic = None
-accelerationCharacteristic = None
-rotationCharacteristic = None
+buffer1Characteristic = None
 
 
 CCCD_UUID = 0x2902
@@ -271,29 +262,17 @@ for svc in boogioPeripheral.services:
         boogioShoeSensorService = boogioPeripheral.getServiceByUUID(svc.uuid)
         for characteristic in boogioShoeSensorService.getCharacteristics():
             print(characteristic)
-            if characteristic.uuid == "f3641401-00B0-4240-ba50-05ca45bf8abc":
-                forceCharacteristic = characteristic
-                forceCharacteristicHandle = characteristic.getHandle()
-                forceCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                forceCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "f3641402-00B0-4240-ba50-05ca45bf8abc":
-                accelerationCharacteristic = characteristic
-                accelerationCharacteristicHandle = characteristic.getHandle()
-                accelerationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                accelerationCCCD.write(b"\x01\x00", True)
-            elif characteristic.uuid == "f3641403-00B0-4240-ba50-05ca45bf8abc":
-                rotationCharacteristic = characteristic
-                rotationCharacteristicHandle = characteristic.getHandle()
-                rotationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
-                rotationCCCD.write(b"\x01\x00", True)
+            if characteristic.uuid == "f3641402-00B0-4240-ba50-05ca45bf8abc":
+                buffer1Characteristic = characteristic
+                buffer1CharacteristicHandle = characteristic.getHandle()
+                buffer1CCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                buffer1CCCD.write(b"\x01\x00", True)
             
-
-
 
 setSampleRateByteString = bytearray()
 setSampleRateByteString.append(0x04) # set sample rate command
-setSampleRateByteString.append(0x04) # frequency argument (Hz)
-rotationCharacteristic.write(str(setSampleRateByteString), withResponse = True)
+setSampleRateByteString.append(0x10) # frequency argument (Hz)
+buffer1Characteristic.write(str(setSampleRateByteString), withResponse = True)
 
 
 current_time = int(round(time.time() * 1000))
@@ -319,7 +298,7 @@ sys.setdefaultencoding('utf8')
 # upate timestamp
 print("Timestamp = " + str(current_time))
 #boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
-forceCharacteristic.write(str(byteString), withResponse = True)
+buffer1Characteristic.write(str(byteString), withResponse = True)
 
 
 
@@ -383,7 +362,7 @@ while not shouldQuit:
     labelSurface = metricsFont.render("Force ", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
 
-    labelSurface = metricsFont.render("[ADC/1000]:", 1, (255,255,255))
+    labelSurface = metricsFont.render("[ADC]:", 1, (255,255,255))
     DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 11))
 
     
@@ -454,35 +433,30 @@ while not shouldQuit:
     DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 9))
 
 
-    labelSurface = metricsFont.render("Toe", 1, ORANGE)
+    labelSurface = metricsFont.render("F(0+1+2)/3", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 9))
     
-    labelSurface = metricsFont.render("Ball", 1, ORANGE)
+    labelSurface = metricsFont.render("F(3+4)/2", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 9))
 
-    labelSurface = metricsFont.render("Arch", 1, ORANGE)
+    labelSurface = metricsFont.render("F(5+6+7)/3", 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 9))
-
-    labelSurface = metricsFont.render("Heel", 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 9))
     
     
 
-    forceToe = str(round(boogioDelegate.forceToe, 2))
-    labelSurface = metricsFont.render(forceToe, 1, ORANGE)
+    force012String = str(round(boogioDelegate.force012, 2))
+    labelSurface = metricsFont.render(force012String, 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 11))
 
-    forceBall = str(round(boogioDelegate.forceBall, 2))
-    labelSurface = metricsFont.render(forceBall, 1, ORANGE)
+    force34String = str(round(boogioDelegate.force34, 2))
+    labelSurface = metricsFont.render(force34String, 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 11))
 
-    forceArch = str(round(boogioDelegate.forceArch, 2))
-    labelSurface = metricsFont.render(forceArch, 1, ORANGE)
+    force567String = str(round(boogioDelegate.force567, 2))
+    labelSurface = metricsFont.render(force567String, 1, ORANGE)
     DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 11))
 
-    forceHeel = str(round(boogioDelegate.forceHeel, 2))
-    labelSurface = metricsFont.render(forceHeel, 1, ORANGE)
-    DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 11))
+    
 
 
     
