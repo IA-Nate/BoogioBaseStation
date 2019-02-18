@@ -147,11 +147,9 @@ if __name__ == "__main__":
 
 
 
-forceCharacteristicHandle = None
-accelerationCharacteristicHandle = None
-rotationCharacteristicHandle = None
-
-
+buffer0CharacteristicHandle = None
+buffer1CharacteristicHandle = None
+buffer2CharacteristicHandle = None
 
 
 
@@ -169,9 +167,9 @@ class MyDelegate(DefaultDelegate):
         self.ACCELERATION_CONVERSION_COEFFICIENT = 1.0 / 1000.0
         self.ROTATION_CONVERSION_COEFFICIENT     = 1.0 / 1000.0
 
-        self.forceBufferIsEmpty = False
-        self.accelerationBufferIsEmpty = False
-        self.rotationBufferIsEmpty = False
+        self.buffer0IsEmpty = False
+        self.buffer1IsEmpty = False
+        self.buffer2IsEmpty = False
 
         self.logger = BoogioLogger(PERIPHERAL_UUID)
         
@@ -181,14 +179,14 @@ class MyDelegate(DefaultDelegate):
     def handleNotification(self, hnd, data):
 
         if(struct.unpack('<B', data[0:1])[0] == 255 and struct.unpack('<B', data[1:2])[0] == 01):
-            if(hnd == forceCharacteristicHandle):
-                self.forceBufferIsEmpty = True
+            if(hnd == buffer0CharacteristicHandle):
+                self.buffer0IsEmpty = True
                 return
-            elif(hnd == accelerationCharacteristicHandle):
-                self.accelerationBufferIsEmpty = True
+            elif(hnd == buffer1CharacteristicHandle):
+                self.buffer1IsEmpty = True
                 return
-            elif(hnd == rotationCharacteristicHandle):
-                self.rotationBufferIsEmpty = True
+            elif(hnd == buffer2CharacteristicHandle):
+                self.buffer2IsEmpty = True
                 return
 
     
@@ -202,33 +200,39 @@ class MyDelegate(DefaultDelegate):
         header = "[" + timestamp + "]"
         
         #Debug print repr(data)
-        if (hnd == forceCharacteristicHandle):
-            forceToe = struct.unpack('<H', data[8:10])[0]
-            forceBall = struct.unpack('<H', data[10:12])[0]
-            forceArch = struct.unpack('<H', data[12:14])[0]
-            forceHeel = struct.unpack('<H', data[14:16])[0]
+        if (hnd == buffer0CharacteristicHandle):
+            
+            force0 = struct.unpack('<H', data[8:10])[0]
+            force1 = struct.unpack('<H', data[10:12])[0]
+            force2 = struct.unpack('<H', data[12:14])[0]
+            force3 = struct.unpack('<H', data[14:16])[0]
+            force4 = struct.unpack('<H', data[16:18])[0]
+            force5 = struct.unpack('<H', data[18:20])[0]
+            
 
-            print(header + "[FORCE]-----------[" + str(forceToe) + "  " + str(forceBall) + "  " + str(forceArch)+ "  " + str(forceHeel) + "]")
+            print(header + "[Buffer_0]----[" + str(force0) + "  " + str(force1) + "  " + str(force2)+ "  " + str(force3) + "  " + str(force4) + "  " + str(force5) + "]")
 
             
 
-            self.logger.insertForceValues(forceToe, forceBall, forceArch, forceHeel)
+            self.logger.insertBuffer0Values(timestamp, force0, force1, force2, force3, force4, force5)
             
             
 
                 
-        elif (hnd == accelerationCharacteristicHandle):           
-            accelerationX = struct.unpack('<h', data[8:10])[0]
-            accelerationY = struct.unpack('<h', data[10:12])[0]
-            accelerationZ = struct.unpack('<h', data[12:14])[0]
+        elif (hnd == buffer1CharacteristicHandle):
+            force6        = struct.unpack('<H', data[8:10])[0]
+            force7        = struct.unpack('<H', data[10:12])[0]
+            accelerationX = struct.unpack('<h', data[12:14])[0]
+            accelerationY = struct.unpack('<h', data[14:16])[0]
+            accelerationZ = struct.unpack('<h', data[16:18])[0]
 
-            print(header + "[ACCELERATION]----[" + str(accelerationX) + "  " + str(accelerationY) + "  " + str(accelerationZ) + "]")
+            print(header + "[Buffer_1]----[" + str(force6) + "  " + str(force7) + "  " + str(accelerationX) + "  " + str(accelerationY) + "  " + str(accelerationZ) + "]")
 
 
-            self.logger.insertAccelerationValues(accelerationX, accelerationY, accelerationZ)
+            self.logger.insertBuffer1Values(timestamp, force6, force7, accelerationX, accelerationY, accelerationZ)
            
 
-        elif (hnd == rotationCharacteristicHandle):
+        elif (hnd == buffer2CharacteristicHandle):
             
 
            
@@ -237,10 +241,10 @@ class MyDelegate(DefaultDelegate):
             rotationZ = struct.unpack('<h', data[12:14])[0]
             rotationW = struct.unpack('<h', data[14:16])[0]
 
-            print(header + "[ROTATION]--------[" + str(rotationX) + "  " + str(rotationY) + "  " + str(rotationZ) + "  " + str(rotationW) + "]")
+            print(header + "[Buffer_2]----[" + str(rotationX) + "  " + str(rotationY) + "  " + str(rotationZ) + "  " + str(rotationW) + "]")
 
 
-            self.logger.insertRotationValues(rotationX, rotationY, rotationZ, rotationW)
+            self.logger.insertBuffer2Values(timestamp, rotationX, rotationY, rotationZ, rotationW)
 
             
         else:
@@ -264,9 +268,9 @@ boogioPeripheral.setDelegate(boogioDelegate)
 
 boogioShoeSensorService = None
 
-forceCharacteristic = None
-accelerationCharacteristic = None
-rotationCharacteristic = None
+buffer0Characteristic = None
+buffer1Characteristic = None
+buffer2Characteristic = None
 
 
 CCCD_UUID = 0x2902
@@ -280,19 +284,19 @@ for svc in boogioPeripheral.services:
         for characteristic in boogioShoeSensorService.getCharacteristics():
             print(characteristic)
             if characteristic.uuid == "f3641401-00B0-4240-ba50-05ca45bf8abc":
-                forceCharacteristic = characteristic
-                forceCharacteristicHandle = characteristic.getHandle()
-                forceCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                buffer0Characteristic = characteristic
+                buffer0CharacteristicHandle = characteristic.getHandle()
+                buffer0CCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
                 
             elif characteristic.uuid == "f3641402-00B0-4240-ba50-05ca45bf8abc":
-                accelerationCharacteristic = characteristic
-                accelerationCharacteristicHandle = characteristic.getHandle()
-                accelerationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                buffer1Characteristic = characteristic
+                buffer1CharacteristicHandle = characteristic.getHandle()
+                buffer1CCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
                 
             elif characteristic.uuid == "f3641403-00B0-4240-ba50-05ca45bf8abc":
-                rotationCharacteristic = characteristic
-                rotationCharacteristicHandle = characteristic.getHandle()
-                rotationCCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
+                buffer2Characteristic = characteristic
+                buffer2CharacteristicHandle = characteristic.getHandle()
+                buffer2CCCD = characteristic.getDescriptors(forUUID=CCCD_UUID)[0]
                 
             
 
@@ -329,7 +333,7 @@ sys.setdefaultencoding('utf8')
 # upate timestamp
 print("Timestamp = " + str(current_time))
 #boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
-forceCharacteristic.write(str(byteString), withResponse = True)
+buffer0Characteristic.write(str(byteString), withResponse = True)
 
 time.sleep(1)
 
@@ -337,21 +341,21 @@ setProtocolByteString = bytearray()
 setProtocolByteString.append(0x01) # set protocol command
 setProtocolByteString.append(0x02) # synchronization enum
 
-rotationCharacteristic.write(str(setProtocolByteString), withResponse = True)
+buffer0Characteristic.write(str(setProtocolByteString), withResponse = True)
 
 
 
 setSampleRateByteString = bytearray()
 setSampleRateByteString.append(0x04) # set sample rate command
 setSampleRateByteString.append(0x01) # frequency argument (Hz)
-rotationCharacteristic.write(str(setSampleRateByteString), withResponse = True)
+buffer0Characteristic.write(str(setSampleRateByteString), withResponse = True)
 
 
 time.sleep(1)
 
-forceCCCD.write(b"\x01\x00", True)
-accelerationCCCD.write(b"\x01\x00", True)
-rotationCCCD.write(b"\x01\x00", True)
+buffer0CCCD.write(b"\x01\x00", True)
+buffer1CCCD.write(b"\x01\x00", True)
+buffer2CCCD.write(b"\x01\x00", True)
 
 
 syncCount = 10
@@ -364,21 +368,21 @@ syncStep.append(0x01) # 1 Readings
 boogioDelegate.logger.connect()
     
 while(True):
-    if(not boogioDelegate.forceBufferIsEmpty):
-        forceCharacteristic.write(str(syncStep), withResponse = True)
+    if(not boogioDelegate.buffer0IsEmpty):
+        buffer0Characteristic.write(str(syncStep), withResponse = True)
         boogioPeripheral.waitForNotifications(sleepTime)
     
-    if(not boogioDelegate.accelerationBufferIsEmpty):
-        accelerationCharacteristic.write(str(syncStep), withResponse = True)
+    if(not boogioDelegate.buffer1IsEmpty):
+        buffer1Characteristic.write(str(syncStep), withResponse = True)
         boogioPeripheral.waitForNotifications(sleepTime)
     
-    if(not boogioDelegate.rotationBufferIsEmpty):
-        rotationCharacteristic.write(str(syncStep), withResponse = True)
+    if(not boogioDelegate.buffer2IsEmpty):
+        buffer2Characteristic.write(str(syncStep), withResponse = True)
         boogioPeripheral.waitForNotifications(sleepTime)
     
     print("\r\n")
 
-    if(boogioDelegate.forceBufferIsEmpty and boogioDelegate.accelerationBufferIsEmpty and boogioDelegate.rotationBufferIsEmpty):
+    if(boogioDelegate.buffer0IsEmpty and boogioDelegate.buffer1IsEmpty and boogioDelegate.buffer2IsEmpty):
         break
 
 

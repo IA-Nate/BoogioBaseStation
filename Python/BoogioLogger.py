@@ -24,9 +24,9 @@ class BoogioLogger:
         self.conn = sqlite3.connect(fullPath)
         self.c = self.conn.cursor()
         try:
-            self.c.execute("CREATE TABLE force(datestamp TEXT, toe INT, ball INT, arch INT, heel INT)")
-            self.c.execute("CREATE TABLE acceleration(datestamp TEXT, x REAL, y REAL, z REAL)")
-            self.c.execute("CREATE TABLE rotation(datestamp TEXT, x REAL, y REAL, z REAL, w REAL)")
+            self.c.execute("CREATE TABLE Buffer_0(datestamp TEXT, force0 INT, force1 INT, force2 INT, force3 INT, force4 INT, force5 INT)")
+            self.c.execute("CREATE TABLE Buffer_1(datestamp TEXT, force6 INT, force7 INT, x REAL, y REAL, z REAL)")
+            self.c.execute("CREATE TABLE Buffer_2(datestamp TEXT, x REAL, y REAL, z REAL, w REAL)")
         except sqlite3.OperationalError:
             print "File alread exists. Connecting to that."
 
@@ -42,19 +42,16 @@ class BoogioLogger:
     def getTime(self):
         return self.datetime
     
-    def insertForceValues(self, toe, ball, arch, heel):
-        date = self.getTime()
-        self.c.execute("INSERT INTO force (datestamp, toe, ball, arch, heel) VALUES (?, ?, ?, ?, ?)",(date, toe, ball, arch, heel))
+    def insertBuffer0Values(self, date, force0, force1, force2, force3, force4, force5):
+        self.c.execute("INSERT INTO Buffer_0 (datestamp, force0, force1, force2, force3, force4, force5) VALUES (?, ?, ?, ?, ?, ?, ?)",(date, force0, force1, force2, force3, force4, force5))
         
 
-    def insertAccelerationValues(self, x, y, z):
-        date = self.getTime()
-        self.c.execute("INSERT INTO acceleration (datestamp, x, y, z) VALUES (?, ?, ?, ?)",(date, x, y, z))
+    def insertBuffer1Values(self, date, force6, force7, x, y, z):
+        self.c.execute("INSERT INTO Buffer_1 (datestamp, force6, force7, x, y, z) VALUES (?, ?, ?, ?, ?, ?)",(date, force6, force7, x, y, z))
         
 
-    def insertRotationValues(self, x, y, z, w):
-        date = self.getTime()
-        self.c.execute("INSERT INTO rotation (datestamp, x, y, z, w) VALUES (?, ?, ?, ?, ?)",(date, x, y, z, w))
+    def insertBuffer2Values(self, date, x, y, z, w):
+        self.c.execute("INSERT INTO Buffer_2 (datestamp, x, y, z, w) VALUES (?, ?, ?, ?, ?)",(date, x, y, z, w))
         
 
 
