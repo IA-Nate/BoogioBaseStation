@@ -118,7 +118,13 @@ def main():
     parser.add_argument('-a', '--all', action='store_true', help='Display duplicate adv responses, by default show new + updated')
     parser.add_argument('-n', '--new', action='store_true', help='Display only new adv responses, by default show new + updated')
     parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity')
+    parser.add_argument('-b', '--bpx', action='store', help='connect to device with this address')
     arg = parser.parse_args(sys.argv[1:])
+    
+    print("arg = " + str(arg))
+    print("arg.bpx = " + str(arg.bpx))
+    PERIPHERAL_UUID = str(arg.bpx)
+
 
     btle.Debugging = arg.verbose
 
