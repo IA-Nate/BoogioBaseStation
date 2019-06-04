@@ -201,6 +201,11 @@ def main():
     else:
         PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
         #PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
+        #print("pass the hardware address to this script to connect to that device")
+        #print("usage: -b <boogio:device:hardware:address>")
+        #print("You can find the hardware address by running scanner.py")
+        #return
+        
 
     if arg.port != None:
         TRANSMISSION_PORT = int(arg.port)
