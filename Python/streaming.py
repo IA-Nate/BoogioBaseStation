@@ -189,16 +189,30 @@ def main():
     parser.add_argument('-n', '--new', action='store_true', help='Display only new adv responses, by default show new + updated')
     parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity')
     parser.add_argument('-b', '--bpx', action='store', help='connect to device with this address')
+    parser.add_argument('-p', '--port', action='store', help='relay all readings over this TCP port')
+    parser.add_argument('-e', '--headless', action='store_true', help='run without graphics (improves performance)')
     arg = parser.parse_args(sys.argv[1:])
     
-    if arg.bpx != None:
-        print("arg = " + str(arg))
+    #print("arg = " + str(arg))
+    
+    if arg.bpx != None:        
         print("arg.bpx = " + str(arg.bpx))
         PERIPHERAL_UUID = str(arg.bpx)
     else:
         PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
         #PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
+    if arg.port != None:
+        TRANSMISSION_PORT = int(arg.port)
+        print("arg.port = " + str(arg.port))
+        print("TRANSMISSION_PORT = " + str(TRANSMISSION_PORT))
+    else:
+        TRANSMISSION_PORT = -1
+        
+    if arg.headless != None:
+        headless = True
+    else:
+        headless = False
 
     btle.Debugging = arg.verbose
 
@@ -282,7 +296,8 @@ def main():
 
 
 
-
+    
+        
 
     #pygame graphics
     pygame.init()
@@ -315,132 +330,150 @@ def main():
 
         boogioPeripheral.waitForNotifications(0)
 
-        hSpacing = 13
-        vSpacing = 24
-        cursorX = hSpacing
-        cursorY = vSpacing
-        
-
-        #labels 
-        DISPLAYSURF.fill(BLACK)
-        labelSurface = metricsFont.render("Peripheral: ", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing))
-
-        
-        labelSurface = metricsFont.render("Acceleration ", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 3))
-        
-        labelSurface = metricsFont.render("[Gravities*1000]:", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 4))
-
-        labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 6))
-
-        labelSurface = metricsFont.render("[quaternion*1000]:", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 7))
-
-        labelSurface = metricsFont.render("Force ", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
-
-        labelSurface = metricsFont.render("[ADC]:", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 11))
-
-        
-        # readings
-        cursorX = SCREEN_WIDTH / 8
-
-        labelSurface = metricsFont.render(PERIPHERAL_UUID, 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
-
-        labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 1))
-
-        labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 2))
-
-        labelSurface = metricsFont.render("X", 1, RED)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 2))
-
-        
-        labelSurface = metricsFont.render("Y", 1, GREEN)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 2))
-
-        
-        labelSurface = metricsFont.render("Z", 1, BLUE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 2))
-        
-        labelSurface = metricsFont.render("W", 1, YELLOW)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 2))
-        
-
         accelerationX = str(round(boogioDelegate.accelerationX, 2))
-        labelSurface = metricsFont.render(accelerationX, 1, RED)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 4))
-
         accelerationY = str(round(boogioDelegate.accelerationY, 2))
-        labelSurface = metricsFont.render(accelerationY, 1, GREEN)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 4))
-
         accelerationZ = str(round(boogioDelegate.accelerationZ, 2))
-        labelSurface = metricsFont.render(accelerationZ, 1, BLUE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 4))
-
-
-
+        
         rotationX = str(round(boogioDelegate.rotationX, 2))
-        labelSurface = metricsFont.render(rotationX, 1, RED)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 7))
-
         rotationY = str(round(boogioDelegate.rotationY, 2))
-        labelSurface = metricsFont.render(rotationY, 1, GREEN)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 7))
-
         rotationZ = str(round(boogioDelegate.rotationZ, 2))
-        labelSurface = metricsFont.render(rotationZ, 1, BLUE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 7))
-
         rotationW = str(round(boogioDelegate.rotationW, 2))
-        labelSurface = metricsFont.render(rotationW, 1, YELLOW)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 7))
         
-        
-        
-        
-        labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 8))
-        
-        labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
-        DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 9))
-
-
-        labelSurface = metricsFont.render("(F0+F1+F2)/3", 1, ORANGE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 9))
-        
-        labelSurface = metricsFont.render("(F3+F4)/2", 1, ORANGE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 9))
-
-        labelSurface = metricsFont.render("(F5+F6+F7)/3", 1, ORANGE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 9))
-        
-        
-
         force012String = str(round(boogioDelegate.force012, 2))
-        labelSurface = metricsFont.render(force012String, 1, ORANGE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 11))
-
         force34String = str(round(boogioDelegate.force34, 2))
-        labelSurface = metricsFont.render(force34String, 1, ORANGE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 11))
-
         force567String = str(round(boogioDelegate.force567, 2))
-        labelSurface = metricsFont.render(force567String, 1, ORANGE)
-        DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 11))
-
         
+        if headless == True:
+            message = "b1 " + accelerationX + " " + accelerationY + " " + accelerationZ + " " \
+                      + rotationX + " " + rotationY + " " + rotationZ + " " + rotationW + " " \
+                      + force012String + " " + force34String + " " + force567String
+            print(message)
+                      
+        else:
+            hSpacing = 13
+            vSpacing = 24
+            cursorX = hSpacing
+            cursorY = vSpacing
+            
+
+            #labels 
+            DISPLAYSURF.fill(BLACK)
+            labelSurface = metricsFont.render("Peripheral: ", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing))
+
+            
+            labelSurface = metricsFont.render("Acceleration ", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 3))
+            
+            labelSurface = metricsFont.render("[Gravities*1000]:", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 4))
+
+            labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 6))
+
+            labelSurface = metricsFont.render("[quaternion*1000]:", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 7))
+
+            labelSurface = metricsFont.render("Force ", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 10))
+
+            labelSurface = metricsFont.render("[ADC]:", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 11))
+
+            
+            # readings
+            cursorX = SCREEN_WIDTH / 8
+
+            labelSurface = metricsFont.render(PERIPHERAL_UUID, 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing))
+
+            labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 1))
+
+            labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 2))
+
+            labelSurface = metricsFont.render("X", 1, RED)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 2))
+
+            
+            labelSurface = metricsFont.render("Y", 1, GREEN)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 2))
+
+            
+            labelSurface = metricsFont.render("Z", 1, BLUE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 2))
+            
+            labelSurface = metricsFont.render("W", 1, YELLOW)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 2))
+            
+
+            
+            labelSurface = metricsFont.render(accelerationX, 1, RED)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 4))
+
+            
+            labelSurface = metricsFont.render(accelerationY, 1, GREEN)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 4))
+
+            
+            labelSurface = metricsFont.render(accelerationZ, 1, BLUE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 4))
 
 
-        
-        pygame.display.update()
+
+            
+            labelSurface = metricsFont.render(rotationX, 1, RED)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 7))
+
+            
+            labelSurface = metricsFont.render(rotationY, 1, GREEN)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 7))
+
+            labelSurface = metricsFont.render(rotationZ, 1, BLUE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 7))
+
+            labelSurface = metricsFont.render(rotationW, 1, YELLOW)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*32, vSpacing * 7))
+            
+            
+            
+            
+            labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 8))
+            
+            labelSurface = metricsFont.render("____________________________________________________________________", 1, (255,255,255))
+            DISPLAYSURF.blit(labelSurface, (hSpacing, vSpacing * 9))
+
+
+            labelSurface = metricsFont.render("(F0+F1+F2)/3", 1, ORANGE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 9))
+            
+            labelSurface = metricsFont.render("(F3+F4)/2", 1, ORANGE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 9))
+
+            labelSurface = metricsFont.render("(F5+F6+F7)/3", 1, ORANGE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 9))
+            
+            
+
+            
+            labelSurface = metricsFont.render(force012String, 1, ORANGE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*8, vSpacing * 11))
+
+            
+            labelSurface = metricsFont.render(force34String, 1, ORANGE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*16, vSpacing * 11))
+
+            
+            labelSurface = metricsFont.render(force567String, 1, ORANGE)
+            DISPLAYSURF.blit(labelSurface, (cursorX + hSpacing*24, vSpacing * 11))
+
+            
+
+
+            
+            pygame.display.update()
 
 
 
