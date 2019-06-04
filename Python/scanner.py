@@ -12,6 +12,7 @@ import sys
 import os
 
 
+
 class ScanPrint(btle.DefaultDelegate):
 
     def __init__(self, opts):
@@ -33,21 +34,23 @@ class ScanPrint(btle.DefaultDelegate):
         if dev.rssi < self.opts.sensitivity:
             return
 
-        print ('    Device (%s): %s (%s), %d dBm %s' %
-               (status,
-                   dev.addr,
-                   dev.addrType,
-                   dev.rssi,
-                   ('' if dev.connectable else '(not connectable)'))
-               )
+       
         for (sdid, desc, val) in dev.getScanData():
             if sdid in [8, 9]:
-                print ('\t' + desc + ': \'' + val + '\'')
-            else:
-                print ('\t' + desc + ': <' + val + '>')
-        if not dev.scanData:
-            print ('\t(no data)')
-        print
+                if "boogio" in val.lower():
+                    print ('    Device (%s): %s (%s), %d dBm %s' %
+                       (status,
+                           dev.addr,
+                           dev.addrType,
+                           dev.rssi,
+                           ('' if dev.connectable else '(not connectable)'))
+                       )
+                    for (sdid, desc, val) in dev.getScanData():
+                        if sdid in [8, 9]:
+                            print ('\t' + desc + ': \'' + val + '\'')
+                        else:
+                            print ('\t' + desc + ': <' + val + '>')
+                
 
 def main():
         
