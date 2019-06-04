@@ -11,6 +11,7 @@ import binascii
 import sys
 import os
 import datetime
+import socket
 
 import pygame
 from pygame.locals import *
@@ -323,6 +324,24 @@ def main():
     BLUE = (64,128,255)
     ORANGE = (252, 97, 38)
     YELLOW = (255, 255, 15)
+    
+    
+    
+    
+    if TRANSMISSION_PORT > 0:
+        # create a socket object
+        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # get local machine name
+        host = ''
+
+        # bind to the port
+        serversocket.bind((host, TRANSMISSION_PORT))
+
+        # queue up to 5 requests
+        serversocket.listen(5)
+        clientsocket, addr = serversocket.accept()
+        
 
     shouldQuit = False
     while not shouldQuit:
@@ -353,6 +372,11 @@ def main():
                       + rotationX + " " + rotationY + " " + rotationZ + " " + rotationW + " " \
                       + force012String + " " + force34String + " " + force567String
             print(message)
+            if TRANSMISSION_PORT > 0:
+                try:
+                    clientsocket.send(message.encode('ascii'))
+                except (BrokenPipeError):
+                    shouldQuit = True
                       
         else:
             hSpacing = 13
@@ -481,10 +505,13 @@ def main():
             pygame.display.update()
 
 
-
+    if TRANSMISSION_PORT > 0:
+        clientsocket.send(str("c0").encode('ascii'))
+        
+    clientsocket.close()
     boogioPeripheral.disconnect()
     pygame.quit()
-
+    
                 
 
 if __name__ == "__main__":
