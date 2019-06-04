@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import argparse
+from importlib import reload
 from bluepy.btle import UUID, Peripheral, ADDR_TYPE_RANDOM, Scanner, DefaultDelegate, BTLEException
 from bluepy import btle
 import time
@@ -15,8 +16,6 @@ import pygame
 from pygame.locals import *
 
 
-#PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
-#PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
 if os.getenv('C', '1') == '0':
     ANSI_RED = ''
@@ -210,9 +209,13 @@ def main():
     parser.add_argument('-b', '--bpx', action='store', help='connect to device with this address')
     arg = parser.parse_args(sys.argv[1:])
     
-    print("arg = " + str(arg))
-    print("arg.bpx = " + str(arg.bpx))
-    PERIPHERAL_UUID = str(arg.bpx)
+    if arg.bpx != None:
+        print("arg = " + str(arg))
+        print("arg.bpx = " + str(arg.bpx))
+        PERIPHERAL_UUID = str(arg.bpx)
+    else:
+        PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
+        #PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
 
     btle.Debugging = arg.verbose
@@ -267,7 +270,7 @@ def main():
     setSampleRateByteString = bytearray()
     setSampleRateByteString.append(0x04) # set sample rate command
     setSampleRateByteString.append(0x05) # frequency argument (Hz)
-    buffer1Characteristic.write(str(setSampleRateByteString), withResponse = True)
+    buffer1Characteristic.write(setSampleRateByteString, withResponse = True)
 
 
     current_time = int(round(time.time() * 1000))
@@ -288,12 +291,12 @@ def main():
 
 
     reload(sys)
-    sys.setdefaultencoding('utf8')
+    #sys.setdefaultencoding('utf8')
                
     # upate timestamp
     print("Timestamp = " + str(current_time))
     #boogioPeripheral.writeCharacteristic(forceCharacteristicHandle, byteString, True)
-    buffer1Characteristic.write(str(byteString), withResponse = True)
+    buffer1Characteristic.write(byteString, withResponse = True)
 
 
 
