@@ -15,25 +15,6 @@ import datetime
 import pygame
 from pygame.locals import *
 
-
-
-if os.getenv('C', '1') == '0':
-    ANSI_RED = ''
-    ANSI_GREEN = ''
-    ANSI_YELLOW = ''
-    ANSI_CYAN = ''
-    ANSI_WHITE = ''
-    ANSI_OFF = ''
-else:
-    ANSI_CSI = "\033["
-    ANSI_RED = ANSI_CSI + '31m'
-    ANSI_GREEN = ANSI_CSI + '32m'
-    ANSI_YELLOW = ANSI_CSI + '33m'
-    ANSI_CYAN = ANSI_CSI + '36m'
-    ANSI_WHITE = ANSI_CSI + '37m'
-    ANSI_OFF = ANSI_CSI + '0m'
-
-
 def dump_services(dev):
     services = sorted(dev.services, key=lambda s: s.hndStart)
     for s in services:
@@ -47,8 +28,8 @@ def dump_services(dev):
             if 'READ' in props:
                 val = c.read()
                 if c.uuid == btle.AssignedNumbers.device_name:
-                    string = ANSI_CYAN + '\'' + \
-                        val.decode('utf-8') + '\'' + ANSI_OFF
+                    string = '\'' + \
+                        val.decode('utf-8') + '\''
                 elif c.uuid == btle.AssignedNumbers.device_information:
                     string = repr(val)
                 else:
@@ -90,21 +71,22 @@ class ScanPrint(btle.DefaultDelegate):
         if dev.rssi < self.opts.sensitivity:
             return
 
-        print ('    Device (%s): %s (%s), %d dBm %s' %
-               (status,
-                   ANSI_WHITE + dev.addr + ANSI_OFF,
-                   dev.addrType,
-                   dev.rssi,
-                   ('' if dev.connectable else '(not connectable)'))
-               )
+       
         for (sdid, desc, val) in dev.getScanData():
             if sdid in [8, 9]:
-                print ('\t' + desc + ': \'' + ANSI_CYAN + val + ANSI_OFF + '\'')
-            else:
-                print ('\t' + desc + ': <' + val + '>')
-        if not dev.scanData:
-            print ('\t(no data)')
-        print
+                if "boogio" in val.lower():
+                    print ('    Device (%s): %s (%s), %d dBm %s' %
+                       (status,
+                           dev.addr,
+                           dev.addrType,
+                           dev.rssi,
+                           ('' if dev.connectable else '(not connectable)'))
+                       )
+                    for (sdid, desc, val) in dev.getScanData():
+                        if sdid in [8, 9]:
+                            print ('\t' + desc + ': \'' + val + '\'')
+                        else:
+                            print ('\t' + desc + ': <' + val + '>')
 
         
 class MyDelegate(DefaultDelegate):
@@ -222,18 +204,18 @@ def main():
 
     scanner = btle.Scanner(arg.hci).withDelegate(ScanPrint(arg))
 
-    print (ANSI_RED + "Scanning for devices..." + ANSI_OFF)
+    print ("Scanning for devices...")
     devices = scanner.scan(arg.timeout)
 
     if arg.discover:
-        print (ANSI_RED + "Discovering services..." + ANSI_OFF)
+        print ("Discovering services...")
 
         for d in devices:
             if not d.connectable:
 
                 continue
 
-            print ("    Connecting to", ANSI_WHITE + d.addr + ANSI_OFF + ":")
+            print ("    Connecting to", d.addr + ":")
 
             dev = btle.Peripheral(d)
             dump_services(dev)
@@ -348,13 +330,13 @@ def main():
         labelSurface = metricsFont.render("Acceleration ", 1, (255,255,255))
         DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 3))
         
-        labelSurface = metricsFont.render("[Gravities/1000]:", 1, (255,255,255))
+        labelSurface = metricsFont.render("[Gravities*1000]:", 1, (255,255,255))
         DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 4))
 
         labelSurface = metricsFont.render("Rotation ", 1, (255,255,255))
         DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 6))
 
-        labelSurface = metricsFont.render("[quaternion/1000]:", 1, (255,255,255))
+        labelSurface = metricsFont.render("[quaternion*1000]:", 1, (255,255,255))
         DISPLAYSURF.blit(labelSurface, (cursorX, vSpacing * 7))
 
         labelSurface = metricsFont.render("Force ", 1, (255,255,255))
