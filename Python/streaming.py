@@ -16,6 +16,8 @@ import socket
 import pygame
 from pygame.locals import *
 
+device_to_advertising_data_dictionary = dict()
+
 def dump_services(dev):
     services = sorted(dev.services, key=lambda s: s.hndStart)
     for s in services:
@@ -84,6 +86,10 @@ class ScanPrint(btle.DefaultDelegate):
                            ('' if dev.connectable else '(not connectable)'))
                        )
                     for (sdid, desc, val) in dev.getScanData():
+                        #print("desc = " + str(desc) + " val = " + str(val))
+                        if desc == "Manufacturer":
+                            device_to_advertising_data_dictionary[str(dev.addr)] = str(val)
+                            print("device_to_advertising_data_dictionary[" + str(dev.addr) + "] = " + str(val))
                         if sdid in [8, 9]:
                             print ('\t' + desc + ': \'' + val + '\'')
                         else:
@@ -226,16 +232,19 @@ def main():
 
     print ("Scanning for devices...")
     devices = scanner.scan(arg.timeout)
+    
+    
 
     if arg.discover:
         print ("Discovering services...")
 
         for d in devices:
             if not d.connectable:
-
                 continue
 
             print ("    Connecting to", d.addr + ":")
+            
+            
 
             dev = btle.Peripheral(d)
             dump_services(dev)
@@ -253,8 +262,19 @@ def main():
 
 
     CCCD_UUID = 0x2902
+    
+    device_is_left_shoe = False
+    device_is_right_shoe = False
+    if device_to_advertising_data_dictionary[str(PERIPHERAL_UUID)] == "ffff05":
+        device_is_right_shoe = True
+        print("Device is Right Shoe")
+    elif device_to_advertising_data_dictionary[str(PERIPHERAL_UUID)] == "ffff04":
+        device_is_left_shoe = True
+        print("Device is Right Shoe")
+    else:
+        print("DEVICE NOT RECOGNIZED!")
 
-    print("Boogio Peripheral:")
+
     for svc in boogioPeripheral.services:
         print("      ")
         print(str(svc))
@@ -338,6 +358,8 @@ def main():
         # bind to the port
         serversocket.bind((host, TRANSMISSION_PORT))
 
+        print("Waiting for tcp socket connection over port " + str(TRANSMISSION_PORT) + "...")
+        
         # queue up to 5 requests
         serversocket.listen(5)
         clientsocket, addr = serversocket.accept()
@@ -368,7 +390,14 @@ def main():
         force567String = str(round(boogioDelegate.force567, 2))
         
         if headless == True:
-            message = "b1 " + accelerationX + " " + accelerationY + " " + accelerationZ + " " \
+            header = ""
+            if device_is_left_shoe:
+                header = header + "ls"
+            elif device_is_right_shoe:
+                header = header + "rs"
+            
+            header = header + "bl"
+            message = header + " " + accelerationX + " " + accelerationY + " " + accelerationZ + " " \
                       + rotationX + " " + rotationY + " " + rotationZ + " " + rotationW + " " \
                       + force012String + " " + force34String + " " + force567String
             print(message)
