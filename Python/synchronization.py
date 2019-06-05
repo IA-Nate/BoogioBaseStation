@@ -14,7 +14,7 @@ from BoogioLogger import *
 
 
 #PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
-PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
+#PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
 if os.getenv('C', '1') == '0':
     ANSI_RED = ''
@@ -116,7 +116,16 @@ def main():
     parser.add_argument('-a', '--all', action='store_true', help='Display duplicate adv responses, by default show new + updated')
     parser.add_argument('-n', '--new', action='store_true', help='Display only new adv responses, by default show new + updated')
     parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity')
+    parser.add_argument('-b', '--bpx', action='store', help='connect to device with this address')
     arg = parser.parse_args(sys.argv[1:])
+
+    if arg.bpx != None:
+        print("arg = " + str(arg))
+        print("arg.bpx = " + str(arg.bpx))
+        PERIPHERAL_UUID = str(arg.bpx)
+    else:
+        PERIPHERAL_UUID = "dc:80:07:ef:8b:cf"
+        #PERIPHERAL_UUID = "f5:47:18:cf:9c:dc"
 
     btle.Debugging = arg.verbose
 
@@ -178,7 +187,7 @@ class MyDelegate(DefaultDelegate):
 
     def handleNotification(self, hnd, data):
 
-        if(struct.unpack('<B', data[0:1])[0] == 255 and struct.unpack('<B', data[1:2])[0] == 01):
+        if(struct.unpack('<B', data[0:1])[0] == b'\xff' and struct.unpack('<B', data[1:2])[0] == b'\x01'):
             if(hnd == buffer0CharacteristicHandle):
                 self.buffer0IsEmpty = True
                 return

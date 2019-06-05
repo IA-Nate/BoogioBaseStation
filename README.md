@@ -65,6 +65,7 @@ $ sudo pip install numpy
 $ sudo pip install pyquaternion
 $ sudo pip install tf
 $ sudo pip install nibabel
+$ sudo pip3 install bluepy
 ```
 
 Clone the Boogio Base Station Repo
@@ -95,57 +96,41 @@ $ cd ~/Dev/BoogioBaseStation/
 $ git pull origin master
 ```
 
-## Running the tests
+### Running the scripts
+
+Use scanner.py to enumerate all the devices broadcasting as Boogio peripherals.
+
 ```
 $ cd ~/Dev/BoogioBaseStation/SampleScripts/
-$ sudo python StreamingExample.py
+$ sudo python3 scanner.py
 ```
-
-The script will first attempt to scan for all available devices. Look for Local Name: "Boogio_L" and "Boogio_R"
 
 Make note of their mac addresses listed as Device(new): <MAC_ADDRESS>
 
-Open for editing the file 
-```
-$ sudo nano ~/Dev/BoogioBaseStation/SampleScripts/StreamingExample.py
-```
 
-and change the values of the variables to your respective Boogio mac addresses (UUIDs).
-```
-LEFT_SHOE_PERIPHERAL_UUID = "<Boogio_L Device mac address>"
-Right_SHOE_PERIPHERAL_UUID = "<Boogio_R Device mac address>"
-```
-
-Once you've completed editing StreamingExample.py in nano, 
-```
-Press Ctrl+o
-then Enter 
-This writes the file (saving your changes).
-
-Then Press Ctrl+x
-To exit nano
+Now run streaming.py by passing it a mac address. It should automatically connect to the device after discovering it once more.
 
 ```
-
-Run the python script once more. It should automatically connect to the devices after discovering them once more.
-
-```
-$ cd ~/Dev/BoogioBaseStation/SampleScripts/
-$ sudo python StreamingExample.py
+$ cd ~/Dev/BoogioBaseStation/Python/
+$ sudo python3 streaming.py
 ```
 
 A PyGame window should appear and independent sensor values will begin to stream from the Boogio devices to the Raspberry Pi. 
+
 ```
 Press "Esc" key to disconnect and exit the program.
 ```
 
-### Break down into end to end tests
 
-Explain what these tests test and why
+You can also use the streaming.py script to transmit the readings to a TCP client over a port you pass as an argument.
+```
+$ cd ~/Dev/BoogioBaseStation/Python/
+$ sudo python3 streaming.py -p 21030 -e -b dc:80:07:ef:8b:cf
+```
 
-```
-Once the GUI is up. You can use the ESC key to end the StreamingExample python script.
-```
+The above example will listen for a TCP connection over port 21030 and, once connected to that client, also connect to the boogio device with the mac address dc:80:07:ef:8b:cf
+
+Sensor data from the boogio device will then be transmitted to the client over the open socket.
 
 
 
